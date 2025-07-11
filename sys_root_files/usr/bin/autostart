@@ -12,6 +12,21 @@ log() {
 
 performance 2>/dev/null
 
+### mod autostart
+if [ -d "/usr/lib/autostart/cbepx" ]
+then
+  log "Run G.R.H quirks."
+  tocon "Applying cbepx quirks..."
+  for script in /usr/lib/autostart/cbepx/*
+  do
+    log "Run ${script}"
+    if [ -f "${script}" ]
+    then
+      "${script}" 2>&1 >>${BOOTLOG}
+    fi
+  done
+fi
+
 ### Load platform specific quirks
 if [ -d "/usr/lib/autostart/quirks/platforms/${HW_DEVICE}" ]
 then

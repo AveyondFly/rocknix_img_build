@@ -37,6 +37,11 @@ if [ ! -f "/storage/.config/drastic/drastic.gptk" ]; then
   cp -r /usr/config/drastic/drastic.gptk /storage/.config/drastic/
 fi
 
+if [ ! -e "/storage/.config/drastic/usrcheat.dat" ]; then
+  ln -sf /storage/roms/bios/nds/usrcheat.dat /storage/.config/drastic/usrcheat.dat
+fi
+
+
 #Make drastic savestate folder
 if [ ! -d "/storage/roms/savestates/nds" ]; then
   mkdir -p /storage/roms/savestates/nds
@@ -56,7 +61,6 @@ fi
 
 cd /storage/.config/drastic/
 
-
 # Fix for libmali gpu driver on S922X platform
 if [ "${HW_DEVICE}" = "S922X" ]; then
   GPUDRIVER=$(/usr/bin/gpudriver)
@@ -65,6 +69,10 @@ if [ "${HW_DEVICE}" = "S922X" ]; then
     export SDL_VIDEO_GL_DRIVER=\/usr\/lib\/egl\/libGL.so.1
     export SDL_VIDEO_EGL_DRIVER=\/usr\/lib\/egl\/libEGL.so.1
   fi
+fi
+
+if [ "$2" = "drastic_opt-sa" ]; then
+	export LD_LIBRARY_PATH=/storage/.config/drastic/lib
 fi
 
 $GPTOKEYB "drastic" -c "drastic.gptk" &

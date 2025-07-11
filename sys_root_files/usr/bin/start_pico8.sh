@@ -16,6 +16,12 @@ case ${HW_ARCH} in
   ;;
 esac
 
+if [ ! -f "/storage/roms/pico-8/pico8_dyn" ] || [ ! -f "/storage/roms/pico-8/pico8_64" ] || [ ! -f "/storage/roms/pico-8/v0.2.5" ]
+then
+  cp -rf /usr/share/cbepx/pico-8/* /storage/roms/pico-8/
+  touch /storage/roms/pico-8/v0.2.5
+fi
+
 # check if the file being launched contains "Splore" and if so launch Pico-8 Splore otherwise run the game directly
 shopt -s nocasematch
 if [[ "${1}" == *splore* ]]; then
