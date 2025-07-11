@@ -1,0 +1,553 @@
+<?xml version="1.0"?>
+<gameList>
+	<folder>
+		<path>./mod</path>
+		<name>TWEAKS</name>
+		<sortname>00</sortname>
+		<image>./images/default.png</image>
+	</folder>
+	<game>
+		<path>./mod/grh_mv_roms.sh</path>
+		<name>&#xf0ec; Move ROMS</name>
+		<desc>Move ROMS to the correct path.</desc>
+		<developer>GRH</developer>
+		<publisher>Emuelec</publisher>
+		<genre>script</genre>
+		<thumbnail>./images/jelos-thumb.png</thumbnail>
+		<image>./images/jelos-image.png</image>
+	</game>
+	<game>
+		<path>./mod/grh_re_roms.sh</path>
+		<name>&#xf0ec; Restore ROMS</name>
+		<desc>Restore ROMS to the original path.</desc>
+		<developer>GRH</developer>
+		<publisher>Emuelec</publisher>
+		<genre>script</genre>
+		<thumbnail>./images/jelos-thumb.png</thumbnail>
+		<image>./images/jelos-image.png</image>
+	</game>
+	<game>
+		<path>./mod/grh_power.sh</path>
+		<name>&#xf011; Power button function</name>
+		<desc>Set the corresponding function when short pressing the power button.</desc>
+		<developer>GRH</developer>
+		<publisher>Emuelec</publisher>
+		<genre>script</genre>
+		<thumbnail>./images/power-thumb.png</thumbnail>
+		<image>./images/power.png</image>
+	</game>
+	<game>
+		<path>./mod/grh_fast.sh</path>
+		<name>&#xf0e7; Fast Mode</name>
+		<desc>Abandoning some automatic features in exchange for quick loading and exiting of the game.</desc>
+		<developer>GRH</developer>
+		<publisher>Emuelec</publisher>
+		<genre>script</genre>
+		<thumbnail>./images/fast-thumb.png</thumbnail>
+		<image>./images/fast.png</image>
+	</game>
+	<game>
+		<path>./mod/grh_skl.sh</path>
+		<name>&#xf11b; Set Turbo hotkey is L3</name>
+		<desc>Select and set the default Turbo button for retroarch.</desc>
+		<developer>GRH</developer>
+		<publisher>Emuelec</publisher>
+		<genre>script</genre>
+		<thumbnail>./images/sk-thumb.png</thumbnail>
+		<image>./images/sk.png</image>
+	</game>
+	<game>
+		<path>./mod/grh_skr.sh</path>
+		<name>&#xf11b; Set Turbo hotkey is R3</name>
+		<desc>Select and set the default Turbo button for retroarch.</desc>
+		<developer>GRH</developer>
+		<publisher>Emuelec</publisher>
+		<genre>script</genre>
+		<thumbnail>./images/sk-thumb.png</thumbnail>
+		<image>./images/sk.png</image>
+	</game>
+	<game>
+		<path>./mod/grh_skb.sh</path>
+		<name>&#xf11b; Set Turbo hotkey is B</name>
+		<desc>Select and set the default Turbo button for retroarch.</desc>
+		<developer>GRH</developer>
+		<publisher>Emuelec</publisher>
+		<genre>script</genre>
+		<thumbnail>./images/sk-thumb.png</thumbnail>
+		<image>./images/sk.png</image>
+	</game>
+	<game>
+		<path>./mod/grh_sethw.sh</path>
+		<name>&#xf021; Toggle HW model</name>
+		<desc>Manually switch the handheld model of RG353 series.</desc>
+		<developer>G.R.H</developer>
+		<publisher>JELOS</publisher>
+		<genre>script</genre>
+		<thumbnail>./images/sethw-thumb.png</thumbnail>
+		<image>./images/sethw.png</image>
+	</game>
+	<game>
+		<path>./mod/grh_gst.sh</path>
+		<name>&#xf1c0; Backup&Import game save</name>
+		<desc>Automatically import game save from other systems in TF2/EXT. to current system.</desc>
+		<developer>G.R.H</developer>
+		<publisher>JELOS</publisher>
+		<genre>script</genre>
+		<thumbnail>./images/gst-thumb.png</thumbnail>
+		<image>./images/gst.png</image>
+	</game>
+	<game>
+		<path>./mod/grh_dark.sh</path>
+		<name>&#xf186; Dark mode</name>
+		<desc>Reduce the brightness of game screen, only effective for RA games.</desc>
+		<developer>G.R.H</developer>
+		<publisher>JELOS</publisher>
+		<genre>script</genre>
+		<thumbnail>./images/dark-thumb.png</thumbnail>
+		<image>./images/dark.png</image>
+	</game>
+	<game>
+		<path>./mod/grh_show.sh</path>
+		<name>&#xf1c9; Show last exec</name>
+		<desc>Display the last exec.log on screen to debug game launching problems.</desc>
+		<developer>G.R.H</developer>
+		<publisher>JELOS</publisher>
+		<genre>script</genre>
+		<thumbnail>./images/show-thumb.png</thumbnail>
+		<image>./images/show.png</image>
+	</game>
+	<game>
+		<path>./mod/grh_hotkey.sh</path>
+		<name>&#xf084; Toggle Retroarch hotkey</name>
+		<desc>Automatically toggle Retroarch hotkey between F and SELECT.</desc>
+		<developer>G.R.H</developer>
+		<publisher>JELOS</publisher>
+		<genre>script</genre>
+		<thumbnail>./images/retroarch64-thumb.png</thumbnail>
+		<image>./images/retroarch64.png</image>
+	</game>
+	<game>
+		<path>./mod/grh_varcade.sh</path>
+		<name>&#xf072; Toggle Varcade type</name>
+		<desc>Automatically toggle vertical arcade type between enabled and disabled.</desc>
+		<developer>G.R.H</developer>
+		<publisher>JELOS</publisher>
+		<genre>script</genre>
+		<thumbnail>./images/varcade-thumb.png</thumbnail>
+		<image>./images/varcade.png</image>
+	</game>
+	<game>
+		<path>./mod/grh_psp.sh</path>
+		<name>&#xf0b2; Toggle psp zoom type</name>
+		<desc>Automatically toggle psp zoom type between fullscreen and original ratio</desc>
+		<developer>G.R.H</developer>
+		<publisher>JELOS</publisher>
+		<genre>script</genre>
+		<thumbnail>./images/ppsspp-thumb.png</thumbnail>
+		<image>./images/ppsspp.png</image>
+	</game>
+	<game>
+		<path>./mod/grh_time.sh</path>
+		<name>&#xf017; Set system date and clock</name>
+		<desc>Manually set the system date and clock, support timing games, and no need for networking.</desc>
+		<developer>G.R.H</developer>
+		<publisher>JELOS</publisher>
+		<genre>script</genre>
+		<thumbnail>./images/time-thumb.png</thumbnail>
+		<image>./images/time.png</image>
+	</game>
+	<game>
+		<path>./mod/grh_bezels.sh</path>
+		<name>&#xf096; Install Bezels</name>
+		<desc>Install bezel files.</desc>
+		<developer>G.R.H</developer>
+		<publisher>JELOS</publisher>
+		<genre>script</genre>
+		<thumbnail>./images/bezel-thumb.png</thumbnail>
+		<image>./images/bezel.png</image>
+	</game>
+	<game>
+		<path>./mod/grh_cheats.sh</path>
+		<name>&#xf087; Install Cheats</name>
+		<desc>Install Cheat files.</desc>
+		<developer>G.R.H</developer>
+		<publisher>JELOS</publisher>
+		<genre>script</genre>
+		<thumbnail>./images/cheats-thumb.png</thumbnail>
+		<image>./images/cheats.png</image>
+	</game>
+	<game>
+		<path>./mod/grh_bios.sh</path>
+		<name>&#xf071; Install BIOS</name>
+		<desc>Install BIOS files.</desc>
+		<developer>G.R.H</developer>
+		<publisher>JELOS</publisher>
+		<genre>script</genre>
+		<thumbnail>./images/bios-thumb.png</thumbnail>
+		<image>./images/bios.png</image>
+	</game>
+	<game>
+		<path>./mod/grh_sk.sh</path>
+		<name>&#xf0a6; Set Turbo hotkey</name>
+		<desc>Select and set the default Turbo button for retroarch.</desc>
+		<developer>G.R.H</developer>
+		<publisher>JELOS</publisher>
+		<genre>script</genre>
+		<thumbnail>./images/sk-thumb.png</thumbnail>
+		<image>./images/sk.png</image>
+	</game>
+	<game>
+		<path>./mod/grh_restore.sh</path>
+		<name>&#xf0fa; S.O.S</name>
+		<desc>This function is used to restore the system default settings after the system upgrade patch is used or when the system has problems.</desc>
+		<developer>G.R.H</developer>
+		<publisher>JELOS</publisher>
+		<rating>1.0</rating>
+		<releasedate>2021</releasedate>
+		<genre>Script</genre>
+		<thumbnail>./images/sos-thumb.png</thumbnail>
+		<image>./images/sos.png</image>
+	</game>
+	<game>
+		<path>./fileman.sh</path>
+		<name> &#xf15b; File Manager</name>
+		<desc>Single panel file manager</desc>
+		<developer>G.R.H</developer>
+		<publisher>JELOS</publisher>
+		<rating>1.0</rating>
+		<releasedate>2021</releasedate>
+		<genre>Script</genre>
+		<image>./images/file-manager.svg</image>
+	</game>
+	<game>
+		<path>./Create id Tech Launchers.sh</path>
+		<name>Create id Tech Launchers</name>
+		<desc>Create id Tech Launchers.</desc>
+		<developer>JELOS</developer>
+		<publisher>JELOS</publisher>
+		<rating>1.0</rating>
+		<releasedate>2022</releasedate>
+		<genre>Script</genre>
+		<image>./images/idtech.svg</image>
+	</game>
+	<game>
+		<path>./cloud_backup.sh</path>
+		<name>Cloud Backup</name>
+		<desc>Backup your saves to a cloud drive.</desc>
+		<developer>JELOS</developer>
+		<publisher>JELOS</publisher>
+		<rating>1.0</rating>
+		<releasedate>2022</releasedate>
+		<genre>Script</genre>
+		<image>./images/rclone-backup.svg</image>
+	</game>
+	<game>
+		<path>./cloud_restore.sh</path>
+		<name>Cloud Restore</name>
+		<desc>Restores your saves from a cloud drive.</desc>
+		<developer>JELOS</developer>
+		<publisher>JELOS</publisher>
+		<rating>1.0</rating>
+		<releasedate>2022</releasedate>
+		<genre>Script</genre>
+		<image>./images/rclone-restore.svg</image>
+	</game>
+	<game>
+		<path>./Start CEMU.sh</path>
+		<name>Start CEMU</name>
+		<desc>Run the CEMU emulator without starting a game.</desc>
+		<developer>JELOS</developer>
+		<publisher>JELOS</publisher>
+		<rating>1.0</rating>
+		<releasedate>2022</releasedate>
+		<genre>Script</genre>
+		<image>./images/cemu.svg</image>
+	</game>
+	<game>
+		<path>./Start HATARISA.sh</path>
+		<name>Start HATARISA</name>
+		<desc>Run the HATARISA emulator without starting a game.</desc>
+		<developer>JELOS</developer>
+		<publisher>JELOS</publisher>
+		<rating>1.0</rating>
+		<releasedate>2022</releasedate>
+		<genre>Script</genre>
+		<image>./images/hatari.svg</image>
+	</game>
+    <game>
+        <path>./Start M8C.sh</path>
+        <name>M8C</name>
+        <desc>Cross-platform M8 tracker headless client.</desc>
+        <developer>ROCKNIX</developer>
+        <publisher>ROCKNIX</publisher>
+        <rating>5.0</rating>
+        <releasedate>2022</releasedate>
+        <genre>Tool</genre>
+        <players>1</players>
+        <image>./images/m8c.svg</image>
+    </game>
+    <game>
+        <path>./Scan id Tech Files.sh</path>
+        <name>Scan id Tech Files</name>
+        <desc>Creates launchers for id software games</desc>
+        <developer>ROCKNIX</developer>
+        <publisher>ROCKNIX</publisher>
+        <rating>5.0</rating>
+        <releasedate>2023</releasedate>
+        <genre>Script</genre>
+        <players>1</players>
+        <image>./images/idtech.svg</image>
+    </game>
+    <game>
+        <path>./Start Duckstation.sh</path>
+        <name>Start Duckstation</name>
+        <desc>Opens the Duckstation GUI (PS1) to enable global configuration changes to be made directly to the emulator. It's recommended to have a mouse and keyboard to modify settings.</desc>
+        <developer>ROCKNIX</developer>
+        <publisher>ROCKNIX</publisher>
+        <rating>5.0</rating>
+        <releasedate>2024</releasedate>
+        <genre>Emulator</genre>
+        <players>1</players>
+        <image>./images/duckstation.svg</image>
+    </game>
+	<game>
+		<path>./Start PCSX2.sh</path>
+		<name>Start PCSX2</name>
+		<desc>Run the PCSX2 emulator without starting a game.</desc>
+		<developer>JELOS</developer>
+		<publisher>JELOS</publisher>
+		<rating>1.0</rating>
+		<releasedate>2022</releasedate>
+		<genre>Script</genre>
+		<image>./images/pcsx2.svg</image>
+	</game>
+	<game>
+		<path>./Start RPCS3.sh</path>
+		<name>Start RPCS3</name>
+		<desc>Run the RPCS3 emulator without starting a game.</desc>
+		<developer>JELOS</developer>
+		<publisher>JELOS</publisher>
+		<rating>1.0</rating>
+		<releasedate>2022</releasedate>
+		<genre>Script</genre>
+		<image>./images/rpcs3.svg</image>
+	</game>
+	<game>
+		<path>./Start Xemu.sh</path>
+		<name>Start Xemu</name>
+		<desc>Run the Xemu emulator without starting a game.</desc>
+		<developer>JELOS</developer>
+		<publisher>JELOS</publisher>
+		<rating>1.0</rating>
+		<releasedate>2022</releasedate>
+		<genre>Script</genre>
+		<image>./images/xemu.svg</image>
+	</game>
+	<game>
+		<path>./Start Yuzu.sh</path>
+		<name>Start Yuzu</name>
+		<desc>Run the Yuzu emulator without starting a game.</desc>
+		<developer>JELOS</developer>
+		<publisher>JELOS</publisher>
+		<rating>1.0</rating>
+		<releasedate>2022</releasedate>
+		<genre>Script</genre>
+		<image>./images/yuzu.svg</image>
+	</game>
+	<game>
+		<path>./Install ROCKNIX.sh</path>
+		<name>Install ROCKNIX</name>
+		<desc>Install ROCKNIX to local storage</desc>
+		<developer>JELOS</developer>
+		<publisher>JELOS</publisher>
+		<rating>1.0</rating>
+		<releasedate>2022</releasedate>
+		<genre>Script</genre>
+		<image>./images/install-rocknix.svg</image>
+	</game>
+	<game>
+		<path>./JelosAddOns.sh</path>
+		<name>JelosAddOns</name>
+		<desc>Game port installer</desc>
+		<developer>brooksytech</developer>
+		<publisher>Jelos</publisher>
+		<rating>1.0</rating>
+		<releasedate>2021</releasedate>
+		<genre>Script</genre>
+		<thumbnail>./images/jelos-thumb.png</thumbnail>
+		<image>./images/jelos-image.png</image>
+	</game>
+	<game>
+		<path>./PortMaster.sh</path>
+		<name>PortMaster</name>
+		<desc>Game port installer</desc>
+		<developer>christianhaitian</developer>
+		<publisher>Jelos</publisher>
+		<rating>1.0</rating>
+		<releasedate>2021</releasedate>
+		<genre>Script</genre>
+		<thumbnail>./images/port-thumb.png</thumbnail>
+		<image>./images/ports-image.png</image>
+	</game>
+	<game>
+		<path>./Start PPSSPP.sh</path>
+		<name>Start PPSSPP</name>
+		<desc>Run the PPSSPP emulator without starting a game.</desc>
+		<developer>JELOS</developer>
+		<publisher>JELOS</publisher>
+		<rating>1.0</rating>
+		<releasedate>2021</releasedate>
+		<genre>Script</genre>
+		<image>./images/ppsspp.svg</image>
+	</game>
+	<game>
+		<path>./Start ScummVM.sh</path>
+		<name>Start ScummVM</name>
+		<desc>Run the ScummVM emulator without starting a game.</desc>
+		<developer>JELOS</developer>
+		<publisher>JELOS</publisher>
+		<rating>1.0</rating>
+		<releasedate>2021</releasedate>
+		<genre>Script</genre>
+		<image>./images/scummvm.svg</image>
+	</game>
+	<game>
+		<path>./Start 32bit_Retroarch.sh</path>
+		<name>Start 32bit RetroArch</name>
+		<desc>Run 32bit RetroArch</desc>
+		<developer>JELOS</developer>
+		<publisher>JELOS</publisher>
+		<rating>1.0</rating>
+		<releasedate>2021</releasedate>
+		<genre>Script</genre>
+		<image>./images/retroarch-32.svg</image>
+	</game>
+	<game>
+		<path>./Start 64bit_Retroarch.sh</path>
+		<name>Start 64bit RetroArch</name>
+		<desc>Run 64bit RetroArch</desc>
+		<developer>JELOS</developer>
+		<publisher>JELOS</publisher>
+		<rating>1.0</rating>
+		<releasedate>2021</releasedate>
+		<genre>Script</genre>
+		<image>./images/retroarch-64.svg</image>
+	</game>
+	<game>
+		<path>./Remove ._ Files.sh</path>
+		<name>Run Remove ._ Files</name>
+		<desc>Removes hidden ._ files created by the MacOS filesystem</desc>
+		<developer>JELOS</developer>
+		<publisher>JELOS</publisher>
+		<rating>1.0</rating>
+		<releasedate>2021</releasedate>
+		<genre>Script</genre>
+		<image>./images/remove-mac-files.svg</image>
+	</game>
+	<game>
+		<path>./Start PortMaster.sh</path>
+		<name>Start PortMaster</name>
+		<desc>Game port installer</desc>
+		<developer>christianhaitian</developer>
+		<publisher>Jelos</publisher>
+		<rating>1.0</rating>
+		<releasedate>2021</releasedate>
+		<genre>Script</genre>
+		<image>./images/portmaster.svg</image>
+	</game>
+	<game>
+		<path>./ThemeMaster.sh</path>
+		<name>ThemeMaster</name>
+		<desc>Theme installer</desc>
+		<developer>JohnIrvine1433</developer>
+		<publisher>Jelos</publisher>
+		<rating>1.0</rating>
+		<releasedate>2022</releasedate>
+		<genre>Script</genre>
+		<thumbnail>./images/theme-thumb.png</thumbnail>
+		<image>./images/theme-image.png</image>
+	</game>
+	<game>
+		<path>./PortMaster.sh</path>
+		<name>PortsMaster</name>
+		<desc>Game port installer</desc>
+		<developer>christianhaitian</developer>
+		<publisher>Jelos</publisher>
+		<rating>1.0</rating>
+		<releasedate>2021</releasedate>
+		<genre>Script</genre>
+		<image>./images/portmaster.svg</image>
+	</game>
+	<game>
+		<path>./Start Moonlight.sh</path>
+		<name>Start Moonlight</name>
+		<desc>Opens the Moonlight GUI to enable global configuration changes to be made directly. Moonlight (formerly Limelight) is an open source implementation of NVIDIA's GameStream protocol. We implemented the protocol used by the NVIDIA Shield and wrote a set of 3rd party clients. You can stream your collection of PC games from your GameStream-compatible PC to any supported device and play them remotely. Moonlight is perfect for gaming on the go without sacrificing the graphics and game selection available on PC.</desc>
+		<developer>JELOS</developer>
+		<publisher>JELOS</publisher>
+		<rating>5.0</rating>
+		<releasedate>2023</releasedate>
+		<genre>Game Stream</genre>
+		<players>1</players>
+		<image>./images/moonlight.svg</image>
+	</game>
+	<game>
+		<path>./Start Ryujinx.sh</path>
+		<name>Start Ryujinx</name>
+		<desc>Opens the Ryujinx GUI (Switch) to enable global configuration changes to be made directly to the emulator. It's recommended to have a mouse and keyboard available to modify settings. Ryujinx is an open-source Nintendo Switch emulator created by gdkchan and written in C#. This emulator aims at providing excellent accuracy and performance, a user-friendly interface, and consistent builds.</desc>
+		<developer>JELOS</developer>
+		<publisher>JELOS</publisher>
+		<rating>5.0</rating>
+		<releasedate>2023</releasedate>
+		<genre>Emulator</genre>
+		<players>1</players>
+		<image>./images/ryujinx.svg</image>
+	</game>
+	<game>
+		<path>./Start AetherSX2.sh</path>
+		<name>Start AetherSX2</name>
+		<desc>AetherSX2 emulator should be the best emulator for PS2 simulation on the Android platform currently.</desc>
+		<developer>JELOS</developer>
+		<publisher>JELOS</publisher>
+		<rating>5.0</rating>
+		<releasedate>2023</releasedate>
+		<genre>Emulator</genre>
+		<players>1</players>
+		<image>./images/aethersx2.svg</image>
+	</game>
+    <game>
+        <path>./Mount NFS.sh</path>
+        <name>Mount NFS</name>
+	<desc>Mounts an NFS share at a location defined in /storage/.nfs-mount and creates a merged storage with the games-internal card as the upper/writeable location</desc>
+        <developer>ROCKNIX</developer>
+        <publisher>ROCKNIX</publisher>
+        <rating>5.0</rating>
+        <releasedate>2024</releasedate>
+        <genre>tool</genre>
+        <players>1</players>
+        <image>./images/nfs.svg</image>
+     </game>
+    <game>
+        <path>./Start MelonDS.sh</path>
+        <name>Start MelonDS</name>
+        <desc>Opens the MelonDS GUI (Nintendo DS) to enable global configuration changes to be made directly to the emulator. It's recommended to have a mouse and keyboard to modify settings.</desc>
+        <developer>ROCKNIX</developer>
+        <publisher>ROCKNIX</publisher>
+        <rating>5.0</rating>
+        <releasedate>2024</releasedate>
+        <genre>Emulator</genre>
+        <players>1</players>
+        <image>./images/melonds.svg</image>
+    </game>
+    <game>
+        <path>./Test Touchscreen.sh</path>
+        <name>Test Touchscreen</name>
+        <desc>A simple SDL GUI touchscreen tester to help validate touchscreen inputs.</desc>
+        <developer>ROCKNIX</developer>
+        <publisher>ROCKNIX</publisher>
+        <rating>5.0</rating>
+        <releasedate>2024</releasedate>
+        <genre>tool</genre>
+        <players>1</players>
+        <image>./images/test-touchscreen.svg</image>
+    </game>
+</gameList>

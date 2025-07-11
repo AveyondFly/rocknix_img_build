@@ -1,0 +1,575 @@
+<?xml version="1.0"?>
+<gameList>
+	<folder>
+		<path>./mod</path>
+		<name>调整&工具</name>
+		<sortname>00</sortname>
+		<image>./images/default.png</image>
+	</folder>
+	<game>
+		<path>./mod/grh_mv_roms.sh</path>
+		<name>&#xf0ec; 移动 ROMS</name>
+		<desc>将 ROMS 移动到正确的路径， 以解决不显示 TF2 游戏的问题.</desc>
+		<developer>GRH</developer>
+		<publisher>Emuelec</publisher>
+		<genre>script</genre>
+		<thumbnail>./images/jelos-thumb.png</thumbnail>
+		<image>./images/jelos-image.png</image>
+	</game>
+	<game>
+		<path>./mod/grh_re_roms.sh</path>
+		<name>&#xf0ec; 还原 ROMS</name>
+		<desc>将 ROMS 还原到原始的路径， 以便更换成其他的系统.</desc>
+		<developer>GRH</developer>
+		<publisher>Emuelec</publisher>
+		<genre>script</genre>
+		<thumbnail>./images/jelos-thumb.png</thumbnail>
+		<image>./images/jelos-image.png</image>
+	</game>
+	<game>
+		<path>./mod/grh_power.sh</path>
+		<name>&#xf011; 电源键功能</name>
+		<desc>设置短按电源键时对应的功能.</desc>
+		<developer>GRH</developer>
+		<publisher>Emuelec</publisher>
+		<genre>script</genre>
+		<thumbnail>./images/power-thumb.png</thumbnail>
+		<image>./images/power.png</image>
+	</game>
+	<game>
+		<path>./mod/grh_fast.sh</path>
+		<name>&#xf0e7; 极速模式</name>
+		<desc>舍弃部分自动功能换取游戏的快速加载和退出.</desc>
+		<developer>GRH</developer>
+		<publisher>Emuelec</publisher>
+		<genre>script</genre>
+		<thumbnail>./images/fast-thumb.png</thumbnail>
+		<image>./images/fast.png</image>
+	</game>
+	<game>
+		<path>./mod/grh_skl.sh</path>
+		<name>&#xf11b; 设置连发快捷键为 L3</name>
+		<desc>选择和设置 Retroarch 模拟器的默认连发快捷键.</desc>
+		<developer>GRH</developer>
+		<publisher>Emuelec</publisher>
+		<genre>script</genre>
+		<thumbnail>./images/sk-thumb.png</thumbnail>
+		<image>./images/sk.png</image>
+	</game>
+	<game>
+		<path>./mod/grh_skr.sh</path>
+		<name>&#xf11b; 设置连发快捷键为 R3</name>
+		<desc>选择和设置 Retroarch 模拟器的默认连发快捷键.</desc>
+		<developer>GRH</developer>
+		<publisher>Emuelec</publisher>
+		<genre>script</genre>
+		<thumbnail>./images/sk-thumb.png</thumbnail>
+		<image>./images/sk.png</image>
+	</game>
+	<game>
+		<path>./mod/grh_skb.sh</path>
+		<name>&#xf11b; 设置连发快捷键为 B</name>
+		<desc>选择和设置 Retroarch 模拟器的默认连发快捷键.</desc>
+		<developer>GRH</developer>
+		<publisher>Emuelec</publisher>
+		<genre>script</genre>
+		<thumbnail>./images/sk-thumb.png</thumbnail>
+		<image>./images/sk.png</image>
+	</game>
+	<game>
+		<path>./mod/grh_sethw.sh</path>
+		<name>&#xf021; 切换机型</name>
+		<desc>手动切换 RG353 系列的掌机型号.</desc>
+		<developer>G.R.H</developer>
+		<publisher>JELOS</publisher>
+		<genre>script</genre>
+		<thumbnail>./images/sethw-thumb.png</thumbnail>
+		<image>./images/sethw.png</image>
+	</game>
+	<game>
+		<path>./mod/grh_gst.sh</path>
+		<name>&#xf1c0; 备份&导入游戏存档</name>
+		<desc>自动导入卡2中其他系统的游戏存档到当前系统.</desc>
+		<developer>G.R.H</developer>
+		<publisher>JELOS</publisher>
+		<genre>script</genre>
+		<thumbnail>./images/gst-thumb.png</thumbnail>
+		<image>./images/gst.png</image>
+	</game>
+	<game>
+		<path>./mod/grh_dark.sh</path>
+		<name>&#xf186; 夜间模式</name>
+		<desc>降低游戏画面亮度, 只对 RA 游戏有效.</desc>
+		<developer>G.R.H</developer>
+		<publisher>JELOS</publisher>
+		<genre>script</genre>
+		<thumbnail>./images/dark-thumb.png</thumbnail>
+		<image>./images/dark.png</image>
+	</game>
+	<game>
+		<path>./mod/grh_show.sh</path>
+		<name>&#xf1c9; 显示最后日志</name>
+		<desc>在屏幕上显示最后一次的 exec.log 日志以调试游戏启动问题.</desc>
+		<developer>G.R.H</developer>
+		<publisher>JELOS</publisher>
+		<genre>script</genre>
+		<thumbnail>./images/show-thumb.png</thumbnail>
+		<image>./images/show.png</image>
+	</game>
+	<game>
+		<path>./mod/grh_hotkey.sh</path>
+		<name>&#xf084; 切换 RETROARCH 热键</name>
+		<desc>一键自动切换 F 或 SELECT 作为 RA 的热键.</desc>
+		<developer>G.R.H</developer>
+		<publisher>JELOS</publisher>
+		<genre>script</genre>
+		<thumbnail>./images/retroarch64-thumb.png</thumbnail>
+		<image>./images/retroarch64.png</image>
+	</game>
+	<game>
+		<path>./mod/grh_varcade.sh</path>
+		<name>&#xf072; 切换竖版街机模式</name>
+		<desc>一键自动切换竖版街机屏幕旋转开启或关闭.</desc>
+		<developer>G.R.H</developer>
+		<publisher>JELOS</publisher>
+		<genre>script</genre>
+		<thumbnail>./images/varcade-thumb.png</thumbnail>
+		<image>./images/varcade.png</image>
+	</game>
+	<game>
+		<path>./mod/grh_psp.sh</path>
+		<name>&#xf0b2; 切换 PSP 显示比例</name>
+		<desc>在满屏和原始比例之间自动切换 PPSSPP 模拟器的显示比例.</desc>
+		<developer>G.R.H</developer>
+		<publisher>JELOS</publisher>
+		<genre>script</genre>
+		<thumbnail>./images/ppsspp-thumb.png</thumbnail>
+		<image>./images/ppsspp.png</image>
+	</game>
+	<game>
+		<path>./mod/grh_time.sh</path>
+		<name>&#xf017; 设置日期&时间</name>
+		<desc>手动设置系统日期和时间，支持授时游戏，无需联网.</desc>
+		<developer>G.R.H</developer>
+		<publisher>JELOS</publisher>
+		<genre>script</genre>
+			<thumbnail>./images/time-thumb.png</thumbnail>
+		<image>./images/time.png</image>
+	</game>
+	<game>
+		<path>./mod/grh_bezels.sh</path>
+		<name>&#xf096; 安装边框资源</name>
+		<desc>安装边框资源文件.</desc>
+		<developer>G.R.H</developer>
+		<publisher>JELOS</publisher>
+		<genre>script</genre>
+			<thumbnail>./images/bezel-thumb.png</thumbnail>
+		<image>./images/bezel.png</image>
+	</game>
+	<game>
+		<path>./mod/grh_cheats.sh</path>
+		<name>&#xf087; 安装金手指资源</name>
+		<desc>安装 Cheats 资源文件.</desc>
+		<developer>G.R.H</developer>
+		<publisher>JELOS</publisher>
+		<genre>script</genre>
+			<thumbnail>./images/cheats-thumb.png</thumbnail>
+		<image>./images/cheats.png</image>
+	</game>
+	<game>
+		<path>./mod/grh_bios.sh</path>
+		<name>&#xf071; 安装 BIOS 资源</name>
+		<desc>安装 BIOS 资源文件.</desc>
+		<developer>G.R.H</developer>
+		<publisher>JELOS</publisher>
+		<genre>script</genre>
+			<thumbnail>./images/bios-thumb.png</thumbnail>
+		<image>./images/bios.png</image>
+	</game>
+	<game>
+		<path>./mod/grh_sk.sh</path>
+		<name>&#xf0a6; 设置连发快捷键</name>
+		<desc>选择和设置 Retroarch 模拟器的默认连发快捷键.</desc>
+		<developer>G.R.H</developer>
+		<publisher>JELOS</publisher>
+		<genre>script</genre>
+			<thumbnail>./images/sk-thumb.png</thumbnail>
+		<image>./images/sk.png</image>
+	</game>
+	<game>
+		<path>./mod/grh_restore.sh</path>
+		<name>&#xf0fa; 系统复原</name>
+		<desc>用于在使用了系统升级补丁后或系统出现问题时恢复系统默认设置的功能.</desc>
+		<developer>G.R.H</developer>
+		<publisher>JELOS</publisher>
+		<rating>1.0</rating>
+		<releasedate>2021</releasedate>
+		<genre>Script</genre>
+		<thumbnail>./images/sos-thumb.png</thumbnail>
+		<image>./images/sos.png</image>
+	</game>
+	<game>
+		<path>./Create id Tech Launchers.sh</path>
+		<name>创建 id Tech 启动器</name>
+		<desc>Create id Tech Launchers.</desc>
+		<developer>JELOS</developer>
+		<publisher>JELOS</publisher>
+		<rating>1.0</rating>
+		<releasedate>2022</releasedate>
+		<genre>Script</genre>
+		<image>./images/idtech.svg</image>
+	</game>
+	<game>
+		<path>./cloud_backup.sh</path>
+		<name>云备份</name>
+		<desc>将您的存档备份到 云驱动器.</desc>
+		<developer>JELOS</developer>
+		<publisher>JELOS</publisher>
+		<rating>1.0</rating>
+		<releasedate>2022</releasedate>
+		<genre>Script</genre>
+		<image>./images/rclone-backup.svg</image>
+	</game>
+	<game>
+		<path>./cloud_restore.sh</path>
+		<name>云恢复</name>
+		<desc>从云驱动器恢复 您的存档.</desc>
+		<developer>JELOS</developer>
+		<publisher>JELOS</publisher>
+		<rating>1.0</rating>
+		<releasedate>2022</releasedate>
+		<genre>Script</genre>
+		<image>./images/rclone-restore.svg</image>
+	</game>
+	<game>
+		<path>./Install ROCKNIX.sh</path>
+		<name>安装 ROCKNIX</name>
+		<desc>安装 ROCKNIX 到内置存储设备</desc>
+		<developer>JELOS</developer>
+		<publisher>JELOS</publisher>
+		<rating>1.0</rating>
+		<releasedate>2022</releasedate>
+		<genre>Script</genre>
+		<image>./images/install-rocknix.svg</image>
+	</game>
+	<game>
+		<path>./Start CEMU.sh</path>
+		<name>启动 CEMU 模拟器</name>
+		<desc>在不开始游戏的情况下运行 CEMU 模拟器.</desc>
+		<developer>JELOS</developer>
+		<publisher>JELOS</publisher>
+		<rating>1.0</rating>
+		<releasedate>2022</releasedate>
+		<genre>Script</genre>
+		<image>./images/cemu.svg</image>
+	</game>
+	<game>
+		<path>./Start HATARISA.sh</path>
+		<name>启动 HATARISA 模拟器</name>
+		<desc>在不开始游戏的情况下运行 HATARISA 模拟器.</desc>
+		<developer>JELOS</developer>
+		<publisher>JELOS</publisher>
+		<rating>1.0</rating>
+		<releasedate>2022</releasedate>
+		<genre>Script</genre>
+		<image>./images/hatari.svg</image>
+	</game>
+    <game>
+        <path>./Start M8C.sh</path>
+        <name>启动 M8C</name>
+        <desc>跨平台 M8 追踪器无头客户端.</desc>
+        <developer>ROCKNIX</developer>
+        <publisher>ROCKNIX</publisher>
+        <rating>5.0</rating>
+        <releasedate>2022</releasedate>
+        <genre>Tool</genre>
+        <players>1</players>
+        <image>./images/m8c.svg</image>
+    </game>
+    <game>
+        <path>./Scan id Tech Files.sh</path>
+        <name>扫描 id 技术文件</name>
+        <desc>为 id 软件游戏 创建启动器</desc>
+        <developer>ROCKNIX</developer>
+        <publisher>ROCKNIX</publisher>
+        <rating>5.0</rating>
+        <releasedate>2023</releasedate>
+        <genre>Script</genre>
+        <players>1</players>
+        <image>./images/idtech.svg</image>
+    </game>
+    <game>
+        <path>./Start Duckstation.sh</path>
+        <name>启动 Duckstation</name>
+        <desc>打开 Duckstation GUI (PS1)，以便直接对模拟器进行全局配置更改. 建议使用鼠标和键盘来修改设置.</desc>
+        <developer>ROCKNIX</developer>
+        <publisher>ROCKNIX</publisher>
+        <rating>5.0</rating>
+        <releasedate>2024</releasedate>
+        <genre>Emulator</genre>
+        <players>1</players>
+        <image>./images/duckstation.svg</image>
+    </game>
+	<game>
+		<path>./Start PCSX2.sh</path>
+		<name>启动 PCSX2 模拟器</name>
+		<desc>在不开始游戏的情况下运行 PCSX2 模拟器.</desc>
+		<developer>JELOS</developer>
+		<publisher>JELOS</publisher>
+		<rating>1.0</rating>
+		<releasedate>2022</releasedate>
+		<genre>Script</genre>
+		<image>./images/pcsx2.svg</image>
+	</game>
+	<game>
+		<path>./Start RPCS3.sh</path>
+		<name>启动 RPCS3 模拟器</name>
+		<desc>在不开始游戏的情况下运行 RPCS3 模拟器.</desc>
+		<developer>JELOS</developer>
+		<publisher>JELOS</publisher>
+		<rating>1.0</rating>
+		<releasedate>2022</releasedate>
+		<genre>Script</genre>
+		<image>./images/rpcs3.svg</image>
+	</game>
+	<game>
+		<path>./Start Xemu.sh</path>
+		<name>启动 Xemu 模拟器</name>
+		<desc>在不开始游戏的情况下运行 Xemu 模拟器.</desc>
+		<developer>JELOS</developer>
+		<publisher>JELOS</publisher>
+		<rating>1.0</rating>
+		<releasedate>2022</releasedate>
+		<genre>Script</genre>
+		<image>./images/xemu.svg</image>
+	</game>
+	<game>
+		<path>./Start Yuzu.sh</path>
+		<name>启动 Yuzu 模拟器</name>
+		<desc>在不开始游戏的情况下运行 Yuzu 模拟器.</desc>
+		<developer>JELOS</developer>
+		<publisher>JELOS</publisher>
+		<rating>1.0</rating>
+		<releasedate>2022</releasedate>
+		<genre>Script</genre>
+		<image>./images/yuzu.svg</image>
+	</game>
+	<game>
+		<path>./Start PPSSPP.sh</path>
+		<name>启动 PPSSPP 模拟器</name>
+		<desc>在不开始游戏的情况下运行 PPSSPP 模拟器.</desc>
+		<developer>JELOS</developer>
+		<publisher>JELOS</publisher>
+		<rating>1.0</rating>
+		<releasedate>2021</releasedate>
+		<genre>Script</genre>
+		<image>./images/ppsspp.svg</image>
+	</game>
+	<game>
+		<path>./Start ScummVM.sh</path>
+		<name>启动 ScummVM 模拟器</name>
+		<desc>在不开始游戏的情况下运行 ScummVM 模拟器.</desc>
+		<developer>JELOS</developer>
+		<publisher>JELOS</publisher>
+		<rating>1.0</rating>
+		<releasedate>2021</releasedate>
+		<genre>Script</genre>
+		<image>./images/scummvm.svg</image>
+	</game>
+	<game>
+		<path>./Start 32bit Retroarch.sh</path>
+		<name>启动 32位 RetroArch</name>
+		<desc>运行 32位的 RetroArch 以便修改各种设置</desc>
+		<developer>JELOS</developer>
+		<publisher>JELOS</publisher>
+		<rating>1.0</rating>
+		<releasedate>2021</releasedate>
+		<genre>Script</genre>
+		<image>./images/retroarch-32.svg</image>
+	</game>
+	<game>
+		<path>./Start 64bit Retroarch.sh</path>
+		<name>启动 64位 RetroArch</name>
+		<desc>运行 64位的 RetroArch 以便修改各种设置</desc>
+		<developer>JELOS</developer>
+		<publisher>JELOS</publisher>
+		<rating>1.0</rating>
+		<releasedate>2021</releasedate>
+		<genre>Script</genre>
+		<image>./images/retroarch-64.svg</image>
+	</game>
+	<game>
+		<path>./Remove ._ Files.sh</path>
+		<name>删除 ._ 文件</name>
+		<desc>删除由 MacOS 文件系统创建的 ._ 隐藏文件</desc>
+		<developer>JELOS</developer>
+		<publisher>JELOS</publisher>
+		<rating>1.0</rating>
+		<releasedate>2021</releasedate>
+		<genre>Script</genre>
+		<image>./images/remove-mac-files.svg</image>
+	</game>
+	<game>
+		<path>./Start PortMaster.sh</path>
+		<name>启动 Ports 管理器</name>
+		<desc>下载和安装 Ports 游戏</desc>
+		<developer>JELOS</developer>
+		<publisher>JELOS</publisher>
+		<rating>1.0</rating>
+		<releasedate>2021</releasedate>
+		<genre>Script</genre>
+		<image>./images/portmaster.svg</image>
+	</game>
+	<game>
+		<path>./fileman.sh</path>
+		<name> &#xf15b; 文件管理器</name>
+		<desc>单窗口的文件管理器</desc>
+		<developer>G.R.H</developer>
+		<publisher>JELOS</publisher>
+		<rating>1.0</rating>
+		<releasedate>2021</releasedate>
+		<genre>Script</genre>
+		<image>./images/file-manager.svg</image>
+	</game>
+	<game>
+		<path>/storage/roms/ports/PortMaster.sh</path>
+		<name>Ports 管理器</name>
+		<desc>Ports 游戏安装程序</desc>
+		<developer>christianhaitian</developer>
+		<publisher>Jelos</publisher>
+		<rating>1.0</rating>
+		<releasedate>2021</releasedate>
+		<genre>Script</genre>
+		<image>./images/portmaster.svg</image>
+	</game>
+	<game>
+		<path>/storage/roms/ports/JelosAddOns.sh</path>
+		<name>Jelos 管理器</name>
+		<desc>Ports 游戏安装程序，转为 JELOS 量身定制</desc>
+		<developer>brooksytech</developer>
+		<publisher>Jelos</publisher>
+		<rating>1.0</rating>
+		<releasedate>2021</releasedate>
+		<genre>Script</genre>
+		<thumbnail>./images/jelos-thumb.png</thumbnail>
+		<image>./images/jelos-image.png</image>
+	</game>
+	<game>
+		<path>./PortMaster.sh</path>
+		<name>Ports 管理器</name>
+		<desc>Ports 游戏安装程序， 需联网</desc>
+		<developer>christianhaitian</developer>
+		<publisher>Jelos</publisher>
+		<rating>1.0</rating>
+		<releasedate>2021</releasedate>
+		<genre>Script</genre>
+		<image>./images/portmaster.svg</image>
+	</game>
+	<game>
+		<path>./ThemeMaster.sh</path>
+		<name>主题管理器</name>
+		<desc>安装主题功能</desc>
+		<developer>JohnIrvine1433</developer>
+		<publisher>Jelos</publisher>
+		<rating>1.0</rating>
+		<releasedate>2022</releasedate>
+		<genre>Script</genre>
+		<thumbnail>./images/theme-thumb.png</thumbnail>
+		<image>./images/theme-image.png</image>
+	</game>
+	<game>
+		<path>/storage/roms/ports/ThemeMaster.sh</path>
+		<name>主题管理器</name>
+		<desc>安装主题功能</desc>
+		<developer>JohnIrvine1433</developer>
+		<publisher>Jelos</publisher>
+		<rating>1.0</rating>
+		<releasedate>2022</releasedate>
+		<genre>Script</genre>
+		<thumbnail>./images/theme-thumb.png</thumbnail>
+		<image>./images/theme-image.png</image>
+	</game>
+	<game>
+		<path>./Start Moonlight.sh</path>
+		<name>启动串流</name>
+		<desc>打开Moonlight GUI以允许直接进行全局配置更改。Moonlight（前身为Limelight）是NVIDIA的GameStream协议的开源实现。我们实现了NVIDIA Shield使用的协议，并编写了一组第三方客户端。您可以将PC游戏集从兼容GameStream的PC流式传输到任何支持的设备，并远程播放。Moonlight非常适合随时随地玩游戏，而不会牺牲PC上的图形和游戏选择.</desc>
+		<developer>JELOS</developer>
+		<publisher>JELOS</publisher>
+		<rating>5.0</rating>
+		<releasedate>2023</releasedate>
+		<genre>Game Stream</genre>
+		<image>./images/moonlight.svg</image>
+	</game>
+	<game>
+		<path>./Start Ryujinx.sh</path>
+		<name>启动 Ryujinx</name>
+		<desc>打开Ryujinx GUI（交换机）以允许直接对模拟器进行全局配置更改。建议使用鼠标和键盘来修改设置。Ryujinx是一个开源的任天堂Switch模拟器，由gdkchan创建，用C#编写。该模拟器旨在提供卓越的准确性和性能、用户友好的界面和一致的构建.</desc>
+		<developer>JELOS</developer>
+		<publisher>JELOS</publisher>
+		<rating>5.0</rating>
+		<releasedate>2023</releasedate>
+		<genre>Emulator</genre>
+		<players>1</players>
+		<image>./images/ryujinx.svg</image>
+	</game>
+	<game>
+		<path>./Start AetherSX2.sh</path>
+		<name>启动 AetherSX2</name>
+		<desc>AetherSX2模拟器应该是目前安卓平台上对PS2模拟效果最好的模拟器.</desc>
+		<developer>JELOS</developer>
+		<publisher>JELOS</publisher>
+		<rating>5.0</rating>
+		<releasedate>2023</releasedate>
+		<genre>Emulator</genre>
+		<players>1</players>
+		<image>./images/aethersx2.svg</image>
+	</game>
+    <game>
+        <path>./Mount NFS.sh</path>
+        <name>挂载 NFS</name>
+	<desc>在/storage/.NFS mount中定义的位置挂载 NFS 共享, 并创建一个合并的存储, 其中游戏内部卡作为上层 / 可写位置</desc>
+        <developer>ROCKNIX</developer>
+        <publisher>ROCKNIX</publisher>
+        <rating>5.0</rating>
+        <releasedate>2024</releasedate>
+        <genre>tool</genre>
+        <players>1</players>
+        <image>./images/nfs.svg</image>
+     </game>
+	<game>
+		<path>./Test Gamepad.sh</path>
+		<name>按键测试</name>
+		<desc>测试按键功能.</desc>
+		<developer>JELOS</developer>
+		<publisher>JELOS</publisher>
+		<rating>5.0</rating>
+		<releasedate>2023</releasedate>
+		<genre>Emulator</genre>
+		<players>1</players>
+		<image>./images/sethw-thumb.png</image>
+	</game>
+    <game>
+        <path>./Start MelonDS.sh</path>
+        <name>启动 MelonDS</name>
+        <desc>打开 MelonDS GUI (任天堂 DS), 以允许直接对模拟器 进行全局配置更改. 建议使用鼠标和 键盘来修改设置.</desc>
+        <developer>ROCKNIX</developer>
+        <publisher>ROCKNIX</publisher>
+        <rating>5.0</rating>
+        <releasedate>2024</releasedate>
+        <genre>Emulator</genre>
+        <players>1</players>
+        <image>./images/melonds.svg</image>
+    </game>
+    <game>
+        <path>./Test Touchscreen.sh</path>
+        <name>测试触摸屏</name>
+        <desc>一个简单的 SDL GUI 触摸屏测试仪, 用于帮助验证触摸屏输入.</desc>
+        <developer>ROCKNIX</developer>
+        <publisher>ROCKNIX</publisher>
+        <rating>5.0</rating>
+        <releasedate>2024</releasedate>
+        <genre>tool</genre>
+        <players>1</players>
+        <image>./images/test-touchscreen.svg</image>
+    </game>
+</gameList>

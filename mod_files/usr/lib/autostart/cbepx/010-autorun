@@ -1,0 +1,117 @@
+#!/bin/bash
+# make by G.R.H
+
+ROM_DIR="/storage/roms"
+if [ -e "/sys/firmware/devicetree/base/model" ]; then
+  hw_info="$(tr -d '\0' </sys/firmware/devicetree/base/model 2>/dev/null)"
+else
+  hw_info="$(tr -d '\0' </sys/class/dmi/id/sys_vendor 2>/dev/null) $(tr -d '\0' </sys/class/dmi/id/product_name 2>/dev/null)"
+fi
+hw_info="$(echo ${hw_info} | sed -e "s#[/]#-#g")"
+
+
+# Debug
+if [ -f /flash/debug_en ]; then
+    mount -o remount,rw /flash
+fi
+ulimit -c 0
+
+# themes
+mkdir -p "${ROM_DIR}/ANBERNIC/themes"
+[[ ! "ls -A ${ROM_DIR}/ANBERNIC/themes" = "" ]] && mv -f ${ROM_DIR}/ANBERNIC/themes/* /storage/.config/emulationstation/themes &
+
+# cheats & shaders
+mkdir -p "${ROM_DIR}/ANBERNIC/shaders"
+mkdir -p "${ROM_DIR}/ANBERNIC/cheats"
+if [ ! -L "/storage/database/cht" ]; then
+    rm -rf "/storage/database/cht"
+    ln -sf "${ROM_DIR}/ANBERNIC/cheats" "/storage/database/cht"
+fi
+
+wait
+sync
+
+# Run update.sh
+if [ -f /storage/data/update.sh ]; then
+    /storage/data/update.sh
+fi
+#if [ -f ${ROM_DIR}/update/update.sh ]; then
+#${ROM_DIR}/update/update.sh
+#fi
+
+# Auto update
+#VERSION1=$(cat /storage/.config/version.conf)
+#VERSION2=$(cat /usr/share/version.conf)
+#if [[ ! -f /storage/.config/version.conf ]] || [[ "$VERSION1" != "$VERSION2" ]] || [[ ! -f /storage/.done ]]
+# then
+#    cp -f /usr/share/version.conf /storage/.config/version.conf
+#    touch /storage/.done
+#    /usr/config/modules/mod/grh_restore.sh 1
+#fi
+#hw_now=$(cat /storage/.config/hw_info.conf)
+#if [[ "$hw_now" != "$hw_info" ]]
+# then
+#    /usr/config/modules/mod/grh_restore.sh 1
+#fi
+#
+# Install onscripter
+if [ ! -d "/storage/.config/onscripter" ]; then
+    mkdir -p "/storage/.config/onscripter"
+    cp -rf "/usr/config/onscripter" "/storage/.config/"
+    chmod -R 777 /storage/.config/onscripter
+fi
+directory="${ROM_DIR}/onscripter"
+mkdir -p $directory
+#for romdir in $directory/*
+#do
+#  if [ -d "$romdir" ]; then
+#    romname=$(basename "$romdir")
+#    if [[ ! -f "$romdir/${romname}.ons" ]] && [[ ! -f "$romdir/${romname}.ONS" ]] && [[ ! "$romname" = "image" ]]; then
+#      touch "$romdir/${romname}.ons"
+#    fi
+#  fi
+#done
+
+# togle language
+if grep -q "language=zh_CN" /storage/.config/system/configs/system.cfg; then
+    if ! grep -q "调整" /storage/.config/modules/gamelist.xml; then
+        cp -f /usr/config/modules/gamelist.xml /storage/.config/modules
+        chmod 644 /storage/.config/modules/gamelist.xml
+    fi
+    if ! grep -q "Language \= zh_CN" /storage/.config/ppsspp/PSP/SYSTEM/ppsspp.ini; then
+        sed -i -e '/Language \=/c\Language \= zh_CN' /storage/.config/ppsspp/PSP/SYSTEM/ppsspp.ini
+    fi
+    if ! grep -q 'user_language = \"12\"' /storage/.config/retroarch/retroarch.cfg; then
+        sed -i -e '/user_language \= \"/c\user_language \= \"12\"' /storage/.config/retroarch/retroarch.cfg
+    fi
+else
+    if ! grep -q "TWEAKS" /storage/.config/modules/gamelist.xml; then
+        cp -f /usr/config/modules/gamelist_en.xml /storage/.config/modules/gamelist.xml
+        chmod 644 /storage/.config/modules/gamelist.xml
+    fi
+    if grep -q "Language \= zh_CN" /storage/.config/ppsspp/PSP/SYSTEM/ppsspp.ini; then
+        sed -i -e '/Language \=/c\Language \= en_US' /storage/.config/ppsspp/PSP/SYSTEM/ppsspp.ini
+    fi
+    if grep -q 'user_language = \"12\"' /storage/.config/retroarch/retroarch.cfg; then
+        sed -i -e '/user_language \= \"/c\user_language \= \"0\"' /storage/.config/retroarch/retroarch.cfg
+    fi
+fi
+
+# flag
+#if [ -f "/storage/.config/flag/fast_mode.flg" ]; then
+#    echo -e "\n\033[32m███████╗ █████╗ ███████╗████████╗        ███╗   ███╗ ██████╗ ██████╗ ███████╗" >/dev/tty0
+#    echo -e "██╔════╝██╔══██╗██╔════╝╚══██╔══╝        ████╗ ████║██╔═══██╗██╔══██╗██╔════╝" >/dev/tty0
+#    echo -e "█████╗  ███████║███████╗   ██║           ██╔████╔██║██║   ██║██║  ██║█████╗  " >/dev/tty0
+#    echo -e "██╔══╝  ██╔══██║╚════██║   ██║           ██║╚██╔╝██║██║   ██║██║  ██║██╔══╝  " >/dev/tty0
+#    echo -e "██║     ██║  ██║███████║   ██║           ██║ ╚═╝ ██║╚██████╔╝██████╔╝███████╗" >/dev/tty0
+#    echo -e "╚═╝     ╚═╝  ╚═╝╚══════╝   ╚═╝           ╚═╝     ╚═╝ ╚═════╝ ╚═════╝ ╚══════╝\033[0m" >/dev/tty0
+#fi
+#if [ -f "/storage/.config/flag/power_mode.flg" ]; then
+#    echo -e "\n\033[33m ██████╗ ██╗   ██╗██╗ ██████╗██╗  ██╗    ███╗   ███╗ ██████╗ ██████╗ ███████╗" >/dev/tty0
+#    echo -e "██╔═══██╗██║   ██║██║██╔════╝██║ ██╔╝    ████╗ ████║██╔═══██╗██╔══██╗██╔════╝" >/dev/tty0
+#    echo -e "██║   ██║██║   ██║██║██║     █████╔╝     ██╔████╔██║██║   ██║██║  ██║█████╗  " >/dev/tty0
+#    echo -e "██║▄▄ ██║██║   ██║██║██║     ██╔═██╗     ██║╚██╔╝██║██║   ██║██║  ██║██╔══╝  " >/dev/tty0
+#    echo -e "╚██████╔╝╚██████╔╝██║╚██████╗██║  ██╗    ██║ ╚═╝ ██║╚██████╔╝██████╔╝███████╗" >/dev/tty0
+#    echo -e " ╚══▀▀═╝  ╚═════╝ ╚═╝ ╚═════╝╚═╝  ╚═╝    ╚═╝     ╚═╝ ╚═════╝ ╚═════╝ ╚══════╝\033[0m" >/dev/tty0
+#fi
+#
