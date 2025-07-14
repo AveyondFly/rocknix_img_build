@@ -349,16 +349,33 @@ case ${QUIRK_DEVICE} in
 	pre_nds_cfg="/storage/.config/drastic/config/drastic.cfg_mm"
     ;;
     "XiFan R36Pro")
+        unzip -oq /usr/share/cbepx/reset/30.zip -d /storage
         Set_system "R36Pro" "552"
     ;;
     "XiFan R36Max")
         Set_system "R36Max" "30"
+    ;;
+    "GameConsole R36U")
+        unzip -oq /usr/share/cbepx/reset/30.zip -d /storage
+        Set_system "R36U" "30"
+	amixer -c 0 -M cset name="Playback Mux" SPK
     ;;
     "Clone R36s G28")
         Set_system "R36s_G28" "552"
     ;;
     "Clone R36s G80")
         Set_system "R36s_G80" "552"
+    ;;
+    "GameConsole K36S")
+        unzip -oq /usr/share/cbepx/reset/max.zip -d /storage
+        Set_system "K36S" "30"
+	pre_nds_cfg="/storage/.config/drastic/config/drastic.cfg_mm"
+	amixer -c 0 -M cset name="Playback Mux" SPK
+    "GameConsole R36T")
+        unzip -oq /usr/share/cbepx/reset/max.zip -d /storage
+        Set_system "R36T" "30"
+	pre_nds_cfg="/storage/.config/drastic/config/drastic.cfg_mm"
+	amixer -c 0 -M cset name="Playback Mux" SPK
     ;;
     *)
         unzip -oq /usr/share/cbepx/reset/353.zip -d /storage
