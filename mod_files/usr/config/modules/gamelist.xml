@@ -17,6 +17,14 @@
 		<image>./images/jelos-image.png</image>
 	</game>
 	<game>
+		<path>./mod/rocknix2emmc.sh</path>
+		<name>&#xf0ec; rocknix写入EMMC</name>
+		<desc>将 rocknix镜像重命名为dd.img放在游戏根目录执行此脚本.</desc>
+		<developer>kk</developer>
+		<publisher>Rocknix</publisher>
+		<genre>script</genre>
+	</game>
+	<game>
 		<path>./mod/grh_re_roms.sh</path>
 		<name>&#xf0ec; 还原 ROMS</name>
 		<desc>将 ROMS 还原到原始的路径， 以便更换成其他的系统.</desc>

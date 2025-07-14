@@ -17,6 +17,16 @@
 		<image>./images/jelos-image.png</image>
 	</game>
 	<game>
+		<path>./mod/rocknix2emmc.sh</path>
+		<name>&#xf0ec; Install rocknix to EMMC</name>
+		<desc>Rename rocknix img to dd.img and copy to roms directory.</desc>
+		<developer>GRH</developer>
+		<publisher>Emuelec</publisher>
+		<genre>script</genre>
+		<thumbnail>./images/jelos-thumb.png</thumbnail>
+		<image>./images/jelos-image.png</image>
+	</game>
+	<game>
 		<path>./mod/grh_re_roms.sh</path>
 		<name>&#xf0ec; Restore ROMS</name>
 		<desc>Restore ROMS to the original path.</desc>

@@ -73,6 +73,7 @@ while true
 do
    Test_Button_A
    if [ "$?" -eq "10" ]; then
+     sed -i -e '/system\.language\=/c system\.language\=zh_CN' /storage/.config/system/configs/system.cfg
      echo -e "\033[31mA\033[0m - \033[32mSimple Chinese\033[0m" >/dev/tty0
      break
    fi
