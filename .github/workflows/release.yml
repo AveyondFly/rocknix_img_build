@@ -1,0 +1,60 @@
+name: Create Release with Image
+
+on:
+  create:
+    tags:
+      - 'v*'
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4  # 更新到最新版本
+
+      # 安装依赖工具
+      - name: Install xmlstarlet
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xmlstarlet jq
+
+      - name: Build the image
+        run: |
+          chmod +x ./build_3326_common.sh
+          sudo ./build_3326_common.sh mini
+
+      # 修正1：正确缩进 + 修复路径处理
+      - name: Extract Asset Name and Path
+        id: extract_asset
+        run: |
+          # 查找匹配文件（限制1个结果）
+          file_path=$(find . -name '*.img.gz' -print -quit)
+
+          if [ -z "$file_path" ]; then
+            echo "No image file found!"
+            exit 1
+          fi
+
+          # 提取纯文件名
+          asset_name=$(basename "$file_path")
+          echo "ASSET_PATH=$file_path" >> $GITHUB_ENV
+          echo "ASSET_NAME=$asset_name" >> $GITHUB_ENV
+          echo "Found: $asset_name at $file_path"
+
+      # 修正2：使用现代release动作
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1  # 替代弃用的create-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          name: "Release ${{ github.ref }}"
+          draft: false
+          prerelease: false
+
+      # 修正3：正确引用环境变量
+      - name: Upload Image as Release Asset
+        uses: softprops/action-gh-release@v1  # 使用统一的上传方式
+        with:
+          files: ${{ env.ASSET_PATH }}  # 直接使用文件路径
