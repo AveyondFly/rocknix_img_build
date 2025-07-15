@@ -237,4 +237,3 @@ rm -rf ${mount_point_storage}
 new_filename="${filename/b.img/b-mod.img}"
 mv ${filename} ${new_filename}
 gzip ${new_filename}
-sha256sum ${new_filename}.gz.sha256
