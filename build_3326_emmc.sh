@@ -154,6 +154,7 @@ cp ${download_data}/* ${mount_point_storage}/data/
 echo "Update issue file" 
 sed -i '/mod_by_kk/!s/nightly/nightly_mod_by_kk/g' ${system_root}/etc/issue
 sed -i '/mod_by_kk/!s/official/official_mod_by_kk/g' ${system_root}/etc/issue
+sed -i '/mod_by_kk/!s/community/ninghtly_mod_by_kk/g' ${system_root}/etc/issue
 sed -i '/mod_by_kk/!s/nightly/nightly_mod_by_kk/g' ${system_root}/etc/motd
 sed -i '/mod_by_kk/!s/official/official_mod_by_kk/g' ${system_root}/etc/motd
 sed -i '/mod_by_kk/!s/nightly/nightly_mod_by_kk/g' ${system_root}/etc/os-release
@@ -194,6 +195,7 @@ touch ${mount_point}/resize_storage_10G
 touch ${mount_point}/ms_unsupported
 
 # 3326 Related mode
+rm -rf ${mount_point}/*.dtb
 cp -rf ${common_dev}/3326/*  ${mount_point}/
 rm -rf ${mount_point}/boot*.ini
 

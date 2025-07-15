@@ -195,6 +195,8 @@ touch ${mount_point}/ms_unsupported
 
 # 3326 Related mode
 cp -rf ${common_dev}/3326/*  ${mount_point}/
+cp -rf ${common_dev}/3326_ini/*  ${mount_point}/
+rm -rf ${mount_point}/extlinux/
 
 # Reset STORAGE partition mount with UUID to avoid mess up with EMMC STROAGE partition
 uuid=`blkid -s UUID -o value ${loop_device}p2`
