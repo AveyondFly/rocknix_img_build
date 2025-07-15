@@ -129,6 +129,16 @@ if [ "$UID" -ne 0 ]; then
     exit 1
 fi
 
+if [ -z "$filename" ]
+then
+    filename="test-b.img"
+    touch ${filename}
+    new_filename="${filename/b.img/b-mod.img}"
+    mv ${filename} ${new_filename}
+    gzip ${new_filename}
+    exit 0
+fi
+
 if [ -z "$filename" ]  
 then
     get_latest_version
@@ -237,4 +247,3 @@ rm -rf ${mount_point_storage}
 new_filename="${filename/b.img/b-mod.img}"
 mv ${filename} ${new_filename}
 gzip ${new_filename}
-sha256sum ${new_filename}.gz.sha256
