@@ -1,0 +1,60 @@
+name: Create Release with Image  
+  
+on:  
+  create:  
+    tags:  
+      - 'v*'
+  
+jobs:  
+  build-and-release:  
+    runs-on: ubuntu-latest  
+    steps:  
+      - name: Checkout code  
+        uses: actions/checkout@v2  
+
+      # Install xmlstarlet
+
+      - name: Install xmlstarlet
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xmlstarlet jq
+
+      - name: Build the image  
+        run: |  
+          chmod +x build_remote.sh  
+          ./build_remote.sh  
+
+    # 2. 提取文件名和路径
+    - name: Extract Asset Name and Path
+      id: extract_asset
+      run: |
+        # 提取文件名（假设文件在 ./downloads 目录下）
+        asset_name=$(ls ./*img.gz)
+        asset_path="$asset_name"
+        
+        # 输出为 GitHub Actions 的环境变量
+        echo "ASSET_NAME=$asset_name" >> $GITHUB_ENV
+        echo "ASSET_PATH=$asset_path" >> $GITHUB_ENV 
+ 
+      - name: Create Release  
+        id: create_release  
+        uses: actions/create-release@v1  
+        env:  
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
+        with:  
+          tag_name: ${{ github.ref }}  
+          release_name: Release ${{ github.ref }}  
+          draft: false  
+          prerelease: false  
+  
+    # 4. 上传资产到 Release
+    - name: Upload Image as Release Asset
+      id: upload-release-asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_name: ${{ env.ASSET_NAME }}
+        asset_path: ${{ env.ASSET_PATH }}
+        asset_content_type: application/octet-stream
