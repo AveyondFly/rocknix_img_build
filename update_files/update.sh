@@ -28,6 +28,7 @@ echo -e "  \033[33mROCK\033[0m\033[37mNIX\033[0m \033[32mMod\033[0m Installer" >
 echo " =======================" >/dev/tty0
 echo " Begin installing:" >/dev/tty0
 mkdir -p /storage/data &> /dev/null
+[ -d /flash/update ] && StartProgress spinner "   - Syncing files... " "cp -rf /flash/update/* /storage/data/ &>/dev/null" >/dev/tty0
 [ -f /storage/data/jdk.zip ] && StartProgress spinner "   - Installing j2me sdk files... " "unzip -oq /storage/data/jdk.zip -d /storage &>/dev/null" >/dev/tty0
 chmod 755 -R /storage/jdk/*
 touch /storage/.done &> /dev/null
