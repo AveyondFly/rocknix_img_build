@@ -61,7 +61,6 @@ mkdir -p /storage/cores
 
 rm -rf ${ROM_DIR}/ANBERNIC/shaders/*
 rm -rf /storage/.tk_* &> /dev/null
-touch /storage/.tk_l3 &> /dev/null
 StartProgress spinner "   - Setting system parameters... " "/usr/share/cbepx/reset/reset.sh &>/dev/null" >/dev/tty0
 echo " Installed successfully." >/dev/tty0
 printf "\n " >/dev/tty0

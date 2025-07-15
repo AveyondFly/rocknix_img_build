@@ -373,6 +373,7 @@ case ${QUIRK_DEVICE} in
         Set_system "K36S" "30"
 	pre_nds_cfg="/storage/.config/drastic/config/drastic.cfg_mm"
 	amixer -c 0 -M cset name="Playback Mux" SPK
+    ;;
     "GameConsole R36T")
         unzip -oq /usr/share/cbepx/reset/max.zip -d /storage
         Set_system "R36T" "30"
