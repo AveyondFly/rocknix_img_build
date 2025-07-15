@@ -27,6 +27,14 @@
 		<image>./images/jelos-image.png</image>
 	</game>
 	<game>
+		<path>./mod/fix_audio.sh</path>
+		<name>&#xf0ec; Fix audio</name>
+		<desc>For device audio doesn't work.</desc>
+		<developer>kk</developer>
+		<publisher>Rocknix</publisher>
+		<genre>script</genre>
+	</game>
+	<game>
 		<path>./mod/grh_re_roms.sh</path>
 		<name>&#xf0ec; Restore ROMS</name>
 		<desc>Restore ROMS to the original path.</desc>

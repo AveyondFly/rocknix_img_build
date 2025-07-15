@@ -362,9 +362,11 @@ case ${QUIRK_DEVICE} in
     ;;
     "Clone R36s G28")
         Set_system "R36s_G28" "552"
+	amixer -c 0 -M cset name="Playback Mux" SPK
     ;;
     "Clone R36s G80")
         Set_system "R36s_G80" "552"
+	amixer -c 0 -M cset name="Playback Mux" HP
     ;;
     "GameConsole K36S")
         unzip -oq /usr/share/cbepx/reset/max.zip -d /storage

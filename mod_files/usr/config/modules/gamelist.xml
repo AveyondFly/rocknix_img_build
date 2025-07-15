@@ -25,6 +25,14 @@
 		<genre>script</genre>
 	</game>
 	<game>
+		<path>./mod/fix_audio.sh</path>
+		<name>&#xf0ec; 无声音修复</name>
+		<desc>修复部分机型的无声音问题.</desc>
+		<developer>kk</developer>
+		<publisher>Rocknix</publisher>
+		<genre>script</genre>
+	</game>
+	<game>
 		<path>./mod/grh_re_roms.sh</path>
 		<name>&#xf0ec; 还原 ROMS</name>
 		<desc>将 ROMS 还原到原始的路径， 以便更换成其他的系统.</desc>
