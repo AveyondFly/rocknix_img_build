@@ -100,21 +100,45 @@ download_mod_data() {
 	xargs -n 1 -I {} wget -P $1 {}
 }
 
+get_latest_version() {
+	# 获取所有 Release 数据
+	releases=$(curl -s https://api.github.com/repos/ROCKNIX/distribution-nightly/releases)
+	# 提取第一个 Release（即最新的）
+	latest_release=$(echo "$releases" | jq -r '.[0]')
+	# 提取所有资产的下载链接
+	assets=$(echo "$latest_release" | jq -r '.assets[].browser_download_url')
+	# 过滤出 RK3326*.b.img.gz 的链接（排除 .sha256 文件）
+	download_url=$(echo "$assets" | grep "RK3326" | grep "b\.img\.gz$")
+	# 输出结果
+	echo "最新 RK3326.b.img.gz 文件的下载地址是: $download_url"
+}
+
+copy_minimal_files() {
+	local file_list=(
+	    "cheats.tar.gz"
+	    "datas.zip"
+	    "jdk.zip"
+#	    "bezels_480x320.zip"
+#	    "bezels_640x480.zip"
+#	    "bezels_720x720.zip"
+	)
+
+	mkdir -p ${mount_point}/update/
+	for file in "${file_list[@]}"; do
+		cp ${download_data}/$file ${mount_point}/update/
+	done
+	cp ${download_data}/mod_cores*.zip ${mount_point}/update/
+}
+
 filename=$1
 source_img_name=${filename%.*}
 #source_img_file="${source_img_name}.img.gz"
-#target_img_name="JELOS-RGB30.aarch64-20240314-MOU"
 mount_point="target"
 mount_point_storage="storage"
 common_dev="update_files"
 system_root="SYSTEM-root"
 download_data="data_files"
 
-if [ -z "$1" ]  
-then  
-    echo "Should run with img as: sudo ./build_mod_img.sh IMG_TO_BE_MOD.img"
-    exit 1
-fi
 
 # Check if root
 if [ "$UID" -ne 0 ]; then
@@ -122,9 +146,20 @@ if [ "$UID" -ne 0 ]; then
     exit 1
 fi
 
+if [ -z "$filename" ] || [ "$filename" = "mini" ]; then
+    get_latest_version
+    filenamegz=$(basename "$download_url")
+    wget ${download_url} -O ${filenamegz} | exit 1
+    echo "Decompressing Rocknix image"
+    gzip -d ${filenamegz} | exit 1
+    filename="${filenamegz%.gz}"
+fi
+
 echo "Welcome to build Rocknix mod IMG!"
 
-resize_img $filename 1024 2400 ext4
+if [[ "$1" != "mini" ]]; then
+	resize_img $filename 1024 2400 ext4
+fi
 
 echo "Creating mount point"
 mkdir -p ${mount_point}
@@ -148,7 +183,12 @@ cp ${common_dev}/functions ${mount_point_storage}/data/
 if [ ! -d ${download_data} ]; then
 	download_mod_data ${download_data}
 fi
-cp ${download_data}/* ${mount_point_storage}/data/
+
+if [[ "$1" == "mini" ]]; then
+	copy_minimal_files
+else
+	cp ${download_data}/* ${mount_point_storage}/data/
+fi
 
 # Update issue file
 echo "Update issue file" 
@@ -216,3 +256,10 @@ losetup -d ${loop_device}
 rm -rf ${system_root}
 rm -rf ${mount_point}
 rm -rf ${mount_point_storage}
+
+if [ "$1" = "mini" ]
+then
+	new_filename="${filename/b.img/b-mod.img}"
+	mv ${filename} ${new_filename}
+	gzip ${new_filename}
+fi
