@@ -20,8 +20,9 @@ jobs:
 
       - name: Build the image
         run: |
-          chmod +x ./build_3326_common.sh
+          chmod +x ./build*.sh
           sudo ./build_3326_common.sh mini
+          sudo ./build_3566_common.sh mini
 
       # 修正1：正确缩进 + 修复路径处理
       - name: Extract Asset Name and Path
