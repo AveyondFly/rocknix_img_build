@@ -118,16 +118,17 @@ copy_minimal_files() {
 	    "cheats.tar.gz"
 	    "datas.zip"
 	    "jdk.zip"
-#	    "bezels_480x320.zip"
-#	    "bezels_640x480.zip"
-#	    "bezels_720x720.zip"
+	    "bezels_480x320.zip"
+	    "bezels_640x480.zip"
+	    "bezels_720x720.zip"
 	)
 
 	mkdir -p ${mount_point}/update/
 	for file in "${file_list[@]}"; do
 		cp ${download_data}/$file ${mount_point}/update/
 	done
-	cp ${download_data}/mod_cores*.zip ${mount_point}/update/
+	cp ${download_data}/mod_cores.zip ${mount_point}/update/
+	cp ${download_data}/mod_cores_genesis_plus_gx_EX_libretro.so.zip ${mount_point}/update/
 }
 
 filename=$1
