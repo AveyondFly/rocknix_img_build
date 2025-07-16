@@ -45,18 +45,13 @@ update_extlinux() {
 	IMAGE=$1
 	MOUNT_DIR="/tmp/image_p1"
 	HOST_CONF="/flash/extlinux/extlinux.conf"
+	HOST_CONF_INI="/flash/boot.ini"
 	IMAGE_CONF="$MOUNT_DIR/extlinux/extlinux.conf_bak"
 	IMAGE_DST_CONF="$MOUNT_DIR/extlinux/extlinux.conf"
 
 	# 检查镜像文件是否存在
 	if [ ! -f "$IMAGE" ]; then
 		echo "错误：镜像文件 $IMAGE 不存在！"
-		exit 1
-	fi
-
-	# 检查宿主配置文件是否存在
-	if [ ! -f "$HOST_CONF" ]; then
-		echo "错误：宿主配置文件 $HOST_CONF 不存在！"
 		exit 1
 	fi
 
@@ -88,8 +83,16 @@ update_extlinux() {
 		exit 1
 	fi
 
-	# 从宿主配置中提取 FDT 值
-	HOST_FDT_VALUE=$(grep -E '^\s*FDT\s+/' "$HOST_CONF" | head -1 | awk '{print $2}')
+	cp "$IMAGE_CONF" "$IMAGE_DST_CONF"
+	IMAGE_CONF="$IMAGE_DST_CONF"
+
+	if [ -f "$HOST_CONF" ]; then
+		# 从宿主配置中提取 FDT 值
+		HOST_FDT_VALUE=$(grep -E '^\s*FDT\s+/' "$HOST_CONF" | head -1 | awk '{print $2}')
+	elif [ -f "$HOST_CONF_INI" ]; then
+		HOST_FDT_VALUE_TMP=$(sed -n 's/.*load mmc 1:1 \${dtb_loadaddr} //p' "$HOST_CONF_INI")
+		HOST_FDT_VALUE=$(printf "/%s" "$HOST_FDT_VALUE_TMP")
+	fi
 	if [ -z "$HOST_FDT_VALUE" ]; then
 		echo "错误：无法从宿主配置中提取 FDT 值！"
 		echo "检查 $HOST_CONF 文件内容："
@@ -113,8 +116,6 @@ update_extlinux() {
 	sed -i "s|boot=\\\${partition_boot}|boot=UUID=$uuid|g" "$IMAGE_CONF"
 	sed -i "s|disk=\\\${partition_storage}|disk=UUID=$suuid|g" "$IMAGE_CONF"
 	
-	cp "$IMAGE_CONF" "$IMAGE_DST_CONF"
-
 	# 清理
 	umount "$MOUNT_DIR"
 	losetup -d "$LOOP_DEV"
