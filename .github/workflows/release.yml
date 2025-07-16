@@ -17,32 +17,38 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y xmlstarlet jq
-
-      - name: Build the image
+      - name: Build the 3326 image 
         run: |
-          chmod +x ./build*.sh
+          chmod +x ./build_3326_common.sh
           sudo ./build_3326_common.sh mini
+          
+      - name: Build the h700 image
+        run: |
+          chmod +x ./build_h700_common.sh
+          sudo ./build_h700_common.sh mini
+          
+      - name: Build the 3566 image
+        run: |
+          chmod +x ./build_3566_common.sh 
           sudo ./build_3566_common.sh mini
           sudo ./build_3566_common.sh mini x55
-
       # 修正1：正确缩进 + 修复路径处理
-      - name: Extract Asset Name and Path
-        id: extract_asset
+      - name: Extract All Image Assets
+        id: extract_assets
         run: |
-          # 查找匹配文件（限制1个结果）
-          file_path=$(find . -name '*.img.gz' -print -quit)
-
-          if [ -z "$file_path" ]; then
-            echo "No image file found!"
+          mapfile -t files < <(find . -type f -name '*.img.gz')
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "❌ 未找到 .img.gz 镜像文件！"
             exit 1
           fi
-
-          # 提取纯文件名
-          asset_name=$(basename "$file_path")
-          echo "ASSET_PATH=$file_path" >> $GITHUB_ENV
-          echo "ASSET_NAME=$asset_name" >> $GITHUB_ENV
-          echo "Found: $asset_name at $file_path"
-
+          echo "共找到 ${#files[@]} 个镜像文件："
+          for f in "${files[@]}"; do
+            echo " - $f"
+          done
+          joined_files=$(printf "%s\n" "${files[@]}")
+          echo "ASSET_PATHS<<EOF" >> $GITHUB_ENV
+          echo "$joined_files" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
       # 修正2：使用现代release动作
       - name: Create Release
         id: create_release
@@ -56,7 +62,31 @@ jobs:
           prerelease: false
 
       # 修正3：正确引用环境变量
-      - name: Upload Image as Release Asset
-        uses: softprops/action-gh-release@v1  # 使用统一的上传方式
+      - name: Upload All Images as Release Assets
+        uses: softprops/action-gh-release@v1
         with:
-          files: ${{ env.ASSET_PATH }}  # 直接使用文件路径
+          files: ${{ env.ASSET_PATHS }}
+      # ⬇️ 安装 BaiduPCS-Go 工具
+      - name: Install BaiduPCS-Go
+        run: |
+          curl -LO https://github.com/qjfoidnh/BaiduPCS-Go/releases/download/v3.9.7/BaiduPCS-Go-v3.9.7-linux-amd64.zip
+          unzip BaiduPCS-Go-v3.9.7-linux-amd64.zip
+          cd BaiduPCS-Go-v3.9.7-linux-amd64
+          chmod +x BaiduPCS-Go
+          mv BaiduPCS-Go /usr/local/bin/
+      # 🔐 安全登录百度网盘（使用 GitHub Secret 中的 Cookie）
+      - name: Login to BaiduPCS-Go
+        run: |
+          BaiduPCS-Go login -cookies="${{ secrets.BAIDU_COOKIE }}"
+      # ☁️ 上传所有镜像文件到百度网盘指定路径
+      - name: Upload All Images to Baidu Netdisk
+        run: |
+          echo "${{ env.ASSET_PATHS }}" > files.txt
+          while IFS= read -r file; do
+            if [ -f "$file" ]; then
+              echo "📤 上传中: $file"
+              BaiduPCS-Go upload "$file" "/lcdyk有的掌机/魔改包/rocknix自动构建/"
+            else
+              echo "⚠️ 文件不存在: $file"
+            fi
+          done < files.txt
