@@ -26,6 +26,25 @@ EMULATOR="${EMULATOR%% *}"  # until a space is found
 ROMNAME="$1"
 BASEROMNAME=${ROMNAME##*/}
 GAMEFOLDER="${ROMNAME//${BASEROMNAME}}"
+ROMNAMETMP=${ROMNAME%.*}
+
+if [[ ${PLATFORM} == "psx" ]]; then
+	if [ -f "${ROMNAMETMP}.bios" ]; then
+		cp -f "${ROMNAMETMP}.bios" "/storage/roms/bios/scph101.bin"
+		cp -f "${ROMNAMETMP}.bios" "/storage/roms/bios/scph5500.bin"
+		cp -f "${ROMNAMETMP}.bios" "/storage/roms/bios/scph5501.bin"
+		cp -f "${ROMNAMETMP}.bios" "/storage/roms/bios/scph5502.bin"
+		cp -f "${ROMNAMETMP}.bios" "/storage/roms/bios/psxonpsp660.bin"
+	else
+		cp -f "/usr/share/psxbios/scph7001.bios" "/storage/roms/bios/scph101.bin"
+		cp -f "/usr/share/psxbios/scph5500.bios" "/storage/roms/bios/scph5500.bin"
+		cp -f "/usr/share/psxbios/scph5501.bios" "/storage/roms/bios/scph5501.bin"
+		cp -f "/usr/share/psxbios/scph5502.bios" "/storage/roms/bios/scph5502.bin"
+		cp -f "/usr/share/psxbios/psxonpsp660.bios" "/storage/roms/bios/psxonpsp660.bin"
+	fi
+fi
+
+/usr/bin/bezels.sh ${PLATFORM} $1
 
 ### Define the variables used throughout the script
 BLUETOOTH_STATE=$(get_setting controllers.bluetooth.enabled)
@@ -91,7 +110,14 @@ function quit() {
         clear_screen
         DEVICE_CPU_GOVERNOR=$(get_setting system.cpugovernor)
         ${DEVICE_CPU_GOVERNOR}
-        exit $1
+    	if [ -f "/storage/.config/system/configs/system.bezel" ]; then
+    		cp -f "/storage/.config/system/configs/system.bezel" "/storage/.config/system/configs/system.cfg"
+    		rm -f "/storage/.config/system/configs/system.bezel"
+        	sync
+    	fi
+    	cp -f /var/log/exec.log /var/log/exec1.log
+    	printf "\033c" > /dev/tty0
+    	exit $1
 }
 
 function clear_screen() {
@@ -140,6 +166,16 @@ clear_screen
 bluetooth disable
 set_kill stop
 
+# freej2me needs the JDK to be downloaded on the first run
+if [[ ${PLATFORM} == "j2me" ]]; then
+  /usr/bin/freej2me.sh
+  export LANG="zh_CN.UTF-8"
+  JAVA_HOME='/storage/jdk'
+  export JAVA_HOME
+  PATH="$JAVA_HOME/bin:$PATH"
+  export PATH
+fi
+
 ### Determine which emulator we're launching and make appropriate adjustments before launching.
 ${VERBOSE} && log $0 "Configuring for ${EMULATOR}"
 case ${EMULATOR} in
@@ -182,7 +218,8 @@ case ${EMULATOR} in
       aarch64)
         if [[ "${CORE}" =~ pcsx_rearmed32 ]] || \
            [[ "${CORE}" =~ gpsp ]] || \
-           [[ "${CORE}" =~ desmume ]]
+           [[ "${CORE}" =~ desmume ]] || \
+           [[ "${CORE}" == *"_32b"*  ]]
         then
           ### Configure for 32bit Retroarch
           ${VERBOSE} && log $0 "Configuring for 32bit cores."
@@ -288,6 +325,18 @@ case ${EMULATOR} in
       ;;
       "shell")
         RUNTHIS='${RUN_SHELL} "${ROMNAME}"'
+      ;;
+      "j2me")
+        RUNTHIS='${RUN_SHELL} /usr/bin/start_freej2me.sh "${ROMNAME}" ${CORE}'
+      ;;
+      "openbor")
+        RUNTHIS='${RUN_SHELL} /usr/bin/start_OpenBOR.sh "${ROMNAME}" ${CORE}'
+      ;;
+      "switch")
+        RUNTHIS='${RUN_SHELL} /usr/bin/start_yuzu.sh "${ROMNAME}" ${CORE}'
+      ;;
+      "nds")
+        RUNTHIS='${RUN_SHELL} /usr/bin/start_drastic.sh "${ROMNAME}" ${CORE}'
       ;;
       *)
         RUNTHIS='${RUN_SHELL} "/usr/bin/start_${CORE%-*}.sh" "${ROMNAME}" "${PLATFORM}"'

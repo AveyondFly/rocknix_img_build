@@ -147,6 +147,7 @@ function mount_games() {
         ntfs)   MOUNT_ARGS="-t ntfs3" ;;
         *)      true ;;
       esac
+      MOUNT_ARGS+=" -o rw,utf8,noatime ";
 
       if [ ! -d "${MOUNT_PATH}" ]
       then
@@ -176,8 +177,14 @@ function mount_games() {
           rm "${MOUNT_PATH}/.tmp-rocknix"
 	fi
       fi
-      start_ms external
+      if [ -e "/flash/ms_unsupported" ]
+      then
+	      mount --bind ${MOUNT_PATH} ${MS_PATH}
+      else
+              start_ms external
+      fi
       create_game_dirs
+      ulimit -c 0
       exit 0
 }
 
@@ -221,7 +228,11 @@ function find_games() {
     then
       set_setting system.merged.device internal
     fi
-    start_ms internal
+    if [ ! -e "/flash/ms_unsupported" ]
+    then
+	start_ms internal
+    fi
+
     create_game_dirs
     exit 0
   fi
