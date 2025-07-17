@@ -258,9 +258,11 @@ rm -rf ${system_root}
 rm -rf ${mount_point}
 rm -rf ${mount_point_storage}
 
-if [ "$1" = "mini" ]
-then
-	new_filename="${filename/b.img/b-mod.img}"
-	mv ${filename} ${new_filename}
-	gzip ${new_filename}
+if [ "$1" = "mini" ]; then
+  new_filename="${filename/b.img/b-mini-mod.img}"
+else
+  new_filename="${filename/b.img/b-mod.img}"
 fi
+
+mv ${filename} ${new_filename}
+gzip ${new_filename}
