@@ -1,0 +1,225 @@
+# .github/workflows/release.yml
+# schedule refresh
+name: Create Release with BDPan
+
+on:
+  workflow_dispatch:
+    inputs:
+      force_build:
+        description: "是否强制忽略版本判断并执行构建？"
+        required: false
+        default: "false"
+      manual_tag:
+        description: "（可选）手动构建的 tag 名（如 20250722）"
+        required: false
+  create:
+    tags:
+      - 'v*'
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 检出仓库所有分支代码
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 从 mod-version 分支恢复 .version
+        id: restore_version
+        run: |
+          git fetch origin mod-version || echo "🆕 mod-version 分支尚不存在"
+          if git show-ref --verify --quiet refs/remotes/origin/mod-version; then
+            git show origin/mod-version:.version > .version
+          else
+            echo "🧩 尚未创建 mod-version 分支，跳过恢复"
+          fi
+          
+      # ↓ 如果是通过“新建 tag”触发的，就把这个临时 tag 删掉 ↓
+      - name: 删除手动触发标签
+        if: ${{ github.event_name == 'create' && github.ref_type == 'tag' }}
+        run: |
+          # 从 GITHUB_REF 中剥离出 tag 名
+          tag=${GITHUB_REF#refs/tags/}
+          echo "🗑 删除手动触发用的标签：$tag"
+          # 删除远程 tag
+          git push origin --delete "refs/tags/$tag"
+
+      - name: 检测并比较版本（使用 mod-version 分支）
+        id: detect_version
+        run: |
+          echo "🧪 获取最新 H700 镜像信息..."
+
+          git fetch origin mod-version || echo "ℹ️ mod-version 分支尚未创建"
+          git show origin/mod-version:.version > .version.last 2>/dev/null || echo "ℹ️ 未检测到历史版本记录"
+
+          response=$(curl -s https://api.github.com/repos/ROCKNIX/distribution-nightly/releases)
+          if ! echo "$response" | jq empty >/dev/null 2>&1; then
+            echo "❌ 无法解析 JSON 响应，终止"
+            exit 1
+          fi
+
+          latest_url=$(echo "$response" | jq -r '.[0].assets[].browser_download_url' \
+            | grep 'H700' | grep 'img\.gz$' | head -n1)
+          if [[ -z "$latest_url" ]]; then
+            echo "❌ 未获取到有效的 H700 镜像 URL"
+            exit 1
+          fi
+
+          version=$(basename "$latest_url" | grep -oP '\d{8}')
+          echo "📦 最新版本号: $version"
+          echo "$version" > .version
+          echo "LATEST_VERSION=$version" >> $GITHUB_ENV
+
+          if [ "${{ github.event.inputs.force_build }}" = "true" ]; then
+            echo "🚨 手动触发：忽略版本比较，强制构建"
+          else
+            if [ -f .version.last ]; then
+              old_version=$(cat .version.last | tr -d '\r\n')
+              echo "📂 上次构建版本: $old_version"
+              if [ "$version" = "$old_version" ]; then
+                echo "✅ 镜像版本未更新（$version），终止 Workflow."
+                exit 78
+              fi
+            else
+              echo "🆕 首次构建，未检测到 .version.last"
+            fi
+          fi
+
+          if [ -n "${{ github.event.inputs.manual_tag }}" ]; then
+            tag_name="${{ github.event.inputs.manual_tag }}"
+            release_name="手动构建版本"
+          else
+            tag_name="auto-${version}"
+            release_name="自动构建版本 - ${version}"
+          fi
+
+          echo "tag_name=$tag_name" >> $GITHUB_OUTPUT
+          echo "release_name=$release_name" >> $GITHUB_OUTPUT
+
+      - name: 安装依赖项
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xmlstarlet jq
+
+      - name: 构建 3566 映像
+        run: |
+          chmod +x ./build_3566_common.sh
+          sudo ./build_3566_common.sh
+          
+          
+      - name: 构建 X55 映像
+        run: |
+          chmod +x ./build_3566_common.sh
+          sudo ./build_3566_common.sh x55
+          
+      - name: 构建 3326 映像
+        run: |
+          chmod +x ./build_3326_common.sh
+          sudo ./build_3326_common.sh
+
+      - name: 构建 H700 映像
+        run: |
+          chmod +x ./build_h700_common.sh
+          sudo ./build_h700_common.sh
+
+      - name: 提取所有镜像
+        id: extract_assets
+        run: |
+          echo "🔍 搜索所有 .img.gz 镜像文件..."
+          mapfile -t files < <(find . -type f -name '*.img.gz')
+      
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "❌ 未找到 .img.gz 镜像文件！"
+            exit 1
+          fi
+      
+          echo "📦 共找到 ${#files[@]} 个镜像文件："
+          joined_files=""
+      
+          total_size_bytes=0
+      
+          for file in "${files[@]}"; do
+            size_bytes=$(stat -c%s "$file")
+            size_mb=$(awk "BEGIN {printf \"%.2f\", $size_bytes / 1024 / 1024}")
+            echo " - $file (${size_mb} MB)"
+            total_size_bytes=$((total_size_bytes + size_bytes))
+            joined_files+="$file"$'\n'
+          done
+      
+          total_size_mb=$(awk "BEGIN {printf \"%.2f\", $total_size_bytes / 1024 / 1024}")
+          echo "📊 镜像总大小: ${total_size_mb} MB"
+      
+          echo "ASSET_PATHS<<EOF" >> $GITHUB_ENV
+          echo "$joined_files" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+
+      - name: 安装BaiduPCS-Go
+        run: |
+          curl -LO https://github.com/qjfoidnh/BaiduPCS-Go/releases/download/v3.9.7/BaiduPCS-Go-v3.9.7-linux-amd64.zip
+          unzip BaiduPCS-Go-v3.9.7-linux-amd64.zip
+          cd BaiduPCS-Go-v3.9.7-linux-amd64
+          chmod +x BaiduPCS-Go
+          sudo mv BaiduPCS-Go /usr/local/bin/
+
+      - name: 登录BaiduPCS-Go
+        run: |
+          BaiduPCS-Go login -cookies="${{ secrets.BAIDU_COOKIE }}"
+
+      - name: 上传所有镜像到百度云盘
+        run: |
+          echo "${{ env.ASSET_PATHS }}" > files.txt
+          echo "📁 创建网盘目录: /rocknix魔改包/rocknix自动构建/${{ env.LATEST_VERSION }}"
+          BaiduPCS-Go mkdir "/rocknix魔改包/rocknix自动构建/${{ env.LATEST_VERSION }}"
+          while IFS= read -r file; do
+            if [ -f "$file" ]; then
+              echo "📤 上传中: $file"
+              BaiduPCS-Go upload "$file" "/rocknix魔改包/rocknix自动构建/${{ env.LATEST_VERSION }}"
+            else
+              echo "⚠️ 文件不存在: $file"
+            fi
+          done < files.txt
+
+      - name: 创建 Release
+        if: ${{ steps.detect_version.outputs.tag_name != '' }}
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.detect_version.outputs.tag_name }}
+          name: ${{ steps.detect_version.outputs.release_name }}
+          draft: false
+          prerelease: false
+          body: |
+            📦 版本号：${{ env.LATEST_VERSION }}
+            ✅ 构建成功！
+
+      - name: 将 .version 推送到 mod-version 分支
+        if: success() && env.LATEST_VERSION != ''
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # 拉取远程 mod-version 分支（如果存在）
+          git fetch origin mod-version || echo "🆕 mod-version 分支尚不存在"
+
+          # 切换或创建本地 mod-version 空分支（仅含 .version）
+          if git rev-parse --verify mod-version >/dev/null 2>&1; then
+            git checkout mod-version
+          else
+            git checkout --orphan mod-version
+            git rm -rf .
+          fi
+
+          # 写入并提交 .version
+          echo "${{ env.LATEST_VERSION }}" > .version
+          git add .version
+          git commit -m "🔄 保存版本号 ${{ env.LATEST_VERSION }}" --author="github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
+
+          # 强制推送至远程 mod-version 分支
+          git push origin mod-version --force
+
+          # 切回 main
+          git checkout main
