@@ -97,7 +97,7 @@ download_mod_data() {
 	grep "browser_download_url" | \
 	grep -v "source" | \
 	sed -E 's/.*"browser_download_url": "([^"]+)".*/\1/' | \
-	xargs -n 1 -I {} wget -P $1 {}
+	xargs -n 1 -I {} wget --show-progress --progress=bar:force:noscroll -P $1 {}
 }
 
 get_latest_version() {
@@ -149,7 +149,7 @@ fi
 if [ -z "$filename" ] || [ "$filename" = "mini" ]; then
     get_latest_version
     filenamegz=$(basename "$download_url")
-    wget ${download_url} -O ${filenamegz} | exit 1
+    wget --show-progress --progress=bar:force:noscroll ${download_url} -O ${filenamegz} | exit 1
     echo "Decompressing Rocknix image"
     gzip -d ${filenamegz} | exit 1
     filename="${filenamegz%.gz}"
