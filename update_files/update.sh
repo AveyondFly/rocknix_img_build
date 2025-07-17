@@ -58,7 +58,7 @@ fi
 [ -f /storage/data/themes.zip ] && StartProgress spinner "   - Installing theme files...... " "unzip -oq /storage/data/themes.zip -d /storage/.config/emulationstation &>/dev/null" >/dev/tty0
 
 mkdir -p /storage/cores
-[ -f /storage/data/mod_cores.zip ] && StartProgress spinner "   - Installing custom cores...... " "unzip -oq /storage/data/mod_cores*.zip -d /storage/cores &>/dev/null" >/dev/tty0
+[ -f /storage/data/mod_cores.zip ] && StartProgress spinner "   - Installing custom cores...... " "find /storage/data -type f -name "mod_cores*.zip" -print0 | xargs -0 -I {} unzip {} -d /storage/cores &>/dev/null" >/dev/tty0
 
 rm -rf ${ROM_DIR}/ANBERNIC/shaders/*
 rm -rf /storage/.tk_* &> /dev/null
