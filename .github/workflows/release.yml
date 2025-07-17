@@ -24,12 +24,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code (with all branches)
+      - name: 检出仓库所有分支代码
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Restore .version from mod-version branch
+      - name: 从 mod-version 分支恢复 .version
         id: restore_version
         run: |
           git fetch origin mod-version || echo "🆕 mod-version 分支尚不存在"
@@ -40,7 +40,7 @@ jobs:
           fi
           
       # ↓ 如果是通过“新建 tag”触发的，就把这个临时 tag 删掉 ↓
-      - name: Delete manual trigger tag
+      - name: 删除手动触发标签
         if: ${{ github.event_name == 'create' && github.ref_type == 'tag' }}
         run: |
           # 从 GITHUB_REF 中剥离出 tag 名
@@ -49,7 +49,7 @@ jobs:
           # 删除远程 tag
           git push origin --delete "refs/tags/$tag"
 
-      - name: Detect and Compare Version (with mod-version branch)
+      - name: 检测并比较版本（使用 mod-version 分支）
         id: detect_version
         run: |
           echo "🧪 获取最新 H700 镜像信息..."
@@ -101,37 +101,37 @@ jobs:
           echo "tag_name=$tag_name" >> $GITHUB_OUTPUT
           echo "release_name=$release_name" >> $GITHUB_OUTPUT
 
-      - name: Install dependencies
+      - name: 安装依赖项
         run: |
           sudo apt-get update
           sudo apt-get install -y xmlstarlet jq
-          
-      - name: Build the 3326 image
-        run: |
-          chmod +x ./build_3326_common.sh
-          sudo ./build_3326_common.sh
-          sudo ./build_3326_common.sh mini
 
-      - name: Build the h700 image
-        run: |
-          chmod +x ./build_h700_common.sh
-          sudo ./build_h700_common.sh
-          sudo ./build_h700_common.sh mini
-
-      - name: Build the 3566 mini image
+      - name: 构建 3566 映像
         run: |
           chmod +x ./build_3566_common.sh
           sudo ./build_3566_common.sh
           sudo ./build_3566_common.sh mini
           
           
-      - name: Build the 3566 x55 image
+      - name: 构建 X55 映像
         run: |
           chmod +x ./build_3566_common.sh
           sudo ./build_3566_common.sh x55
           sudo ./build_3566_common.sh mini_x55
+          
+      - name: 构建 3326 映像
+        run: |
+          chmod +x ./build_3326_common.sh
+          sudo ./build_3326_common.sh
+          sudo ./build_3326_common.sh mini
 
-      - name: Extract All Image Assets
+      - name: 构建 H700 映像
+        run: |
+          chmod +x ./build_h700_common.sh
+          sudo ./build_h700_common.sh
+          sudo ./build_h700_common.sh mini
+
+      - name: 提取所有镜像
         id: extract_assets
         run: |
           echo "🔍 搜索所有 .img.gz 镜像文件..."
@@ -163,7 +163,7 @@ jobs:
           echo "EOF" >> $GITHUB_ENV
 
 
-      - name: Install BaiduPCS-Go
+      - name: 安装BaiduPCS-Go
         run: |
           curl -LO https://github.com/qjfoidnh/BaiduPCS-Go/releases/download/v3.9.7/BaiduPCS-Go-v3.9.7-linux-amd64.zip
           unzip BaiduPCS-Go-v3.9.7-linux-amd64.zip
@@ -171,11 +171,11 @@ jobs:
           chmod +x BaiduPCS-Go
           sudo mv BaiduPCS-Go /usr/local/bin/
 
-      - name: Login to BaiduPCS-Go
+      - name: 登录BaiduPCS-Go
         run: |
           BaiduPCS-Go login -cookies="${{ secrets.BAIDU_COOKIE }}"
 
-      - name: Upload All Images to Baidu Netdisk
+      - name: 上传所有镜像到百度云盘
         run: |
           echo "${{ env.ASSET_PATHS }}" > files.txt
           echo "📁 创建网盘目录: /lcdyk有的掌机/魔改包/rocknix自动构建/${{ env.LATEST_VERSION }}"
@@ -189,7 +189,7 @@ jobs:
             fi
           done < files.txt
 
-      - name: Create Release
+      - name: 创建 Release
         if: ${{ steps.detect_version.outputs.tag_name != '' }}
         uses: softprops/action-gh-release@v1
         env:
@@ -204,7 +204,7 @@ jobs:
             ✅ 构建成功！
 
           
-      - name: Prepare Assets for GitHub Release (split >2G)
+      - name: 调整镜像大小（如果镜像大于2G）
         id: prepare_release_assets
         run: |
           sudo apt-get update && sudo apt-get install -y p7zip-full
@@ -237,7 +237,7 @@ jobs:
           echo "$release_files" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
           
-      - name: Upload All Images as Release Assets (one by one)
+      - name: 上传所有镜像到 Release
         if: ${{ env.RELEASE_ASSETS != '' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -264,7 +264,7 @@ jobs:
 
 
 
-      - name: Push .version to mod-version branch
+      - name: 将 .version 推送到 mod-version 分支
         if: success() && env.LATEST_VERSION != ''
         run: |
           git config user.name "github-actions[bot]"
