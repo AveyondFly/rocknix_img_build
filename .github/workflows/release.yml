@@ -1,6 +1,20 @@
+# .github/workflows/release.yml
+# schedule refresh
 name: Create Release with Image
 
 on:
+  workflow_dispatch:
+    inputs:
+      force_build:
+        description: "是否强制忽略版本判断并执行构建？"
+        required: false
+        default: "false"
+      manual_tag:
+        description: "（可选）手动构建的 tag 名（如 20250722）"
+        required: false
+  schedule:
+    - cron: '0 1 * * *'   # 每天 09:00 北京时间
+    - cron: '0 13 * * *'  # 每天 21:00 北京时间
   create:
     tags:
       - 'v*'
@@ -8,85 +22,272 @@ on:
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4  # 更新到最新版本
 
-      # 安装依赖工具
-      - name: Install xmlstarlet
+    steps:
+      - name: Checkout code (with all branches)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Restore .version from mod-version branch
+        id: restore_version
+        run: |
+          git fetch origin mod-version || echo "🆕 mod-version 分支尚不存在"
+          if git show-ref --verify --quiet refs/remotes/origin/mod-version; then
+            git show origin/mod-version:.version > .version
+          else
+            echo "🧩 尚未创建 mod-version 分支，跳过恢复"
+          fi
+          
+      # ↓ 如果是通过“新建 tag”触发的，就把这个临时 tag 删掉 ↓
+      - name: Delete manual trigger tag
+        if: ${{ github.event_name == 'create' && github.ref_type == 'tag' }}
+        run: |
+          # 从 GITHUB_REF 中剥离出 tag 名
+          tag=${GITHUB_REF#refs/tags/}
+          echo "🗑 删除手动触发用的标签：$tag"
+          # 删除远程 tag
+          git push origin --delete "refs/tags/$tag"
+
+      - name: Detect and Compare Version (with mod-version branch)
+        id: detect_version
+        run: |
+          echo "🧪 获取最新 H700 镜像信息..."
+
+          git fetch origin mod-version || echo "ℹ️ mod-version 分支尚未创建"
+          git show origin/mod-version:.version > .version.last 2>/dev/null || echo "ℹ️ 未检测到历史版本记录"
+
+          response=$(curl -s https://api.github.com/repos/ROCKNIX/distribution-nightly/releases)
+          if ! echo "$response" | jq empty >/dev/null 2>&1; then
+            echo "❌ 无法解析 JSON 响应，终止"
+            exit 1
+          fi
+
+          latest_url=$(echo "$response" | jq -r '.[0].assets[].browser_download_url' \
+            | grep 'H700' | grep 'img\.gz$' | head -n1)
+          if [[ -z "$latest_url" ]]; then
+            echo "❌ 未获取到有效的 H700 镜像 URL"
+            exit 1
+          fi
+
+          version=$(basename "$latest_url" | grep -oP '\d{8}')
+          echo "📦 最新版本号: $version"
+          echo "$version" > .version
+          echo "LATEST_VERSION=$version" >> $GITHUB_ENV
+
+          if [ "${{ github.event.inputs.force_build }}" = "true" ]; then
+            echo "🚨 手动触发：忽略版本比较，强制构建"
+          else
+            if [ -f .version.last ]; then
+              old_version=$(cat .version.last | tr -d '\r\n')
+              echo "📂 上次构建版本: $old_version"
+              if [ "$version" = "$old_version" ]; then
+                echo "✅ 镜像版本未更新（$version），终止 Workflow."
+                exit 78
+              fi
+            else
+              echo "🆕 首次构建，未检测到 .version.last"
+            fi
+          fi
+
+          if [ -n "${{ github.event.inputs.manual_tag }}" ]; then
+            tag_name="${{ github.event.inputs.manual_tag }}"
+            release_name="手动构建版本"
+          else
+            tag_name="auto-${version}"
+            release_name="自动构建版本 - ${version}"
+          fi
+
+          echo "tag_name=$tag_name" >> $GITHUB_OUTPUT
+          echo "release_name=$release_name" >> $GITHUB_OUTPUT
+
+      - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y xmlstarlet jq
-      - name: Build the 3326 image 
+          
+      - name: Build the 3326 image
         run: |
           chmod +x ./build_3326_common.sh
+          sudo ./build_3326_common.sh
           sudo ./build_3326_common.sh mini
-          
+
       - name: Build the h700 image
         run: |
           chmod +x ./build_h700_common.sh
+          sudo ./build_h700_common.sh
           sudo ./build_h700_common.sh mini
-          
-      - name: Build the 3566 image
+
+      - name: Build the 3566 mini image
         run: |
-          chmod +x ./build_3566_common.sh 
+          chmod +x ./build_3566_common.sh
+          sudo ./build_3566_common.sh
           sudo ./build_3566_common.sh mini
-          sudo ./build_3566_common.sh mini x55
-      # 修正1：正确缩进 + 修复路径处理
+          
+          
+      - name: Build the 3566 x55 image
+        run: |
+          chmod +x ./build_3566_common.sh
+          sudo ./build_3566_common.sh x55
+          sudo ./build_3566_common.sh mini_x55
+
       - name: Extract All Image Assets
         id: extract_assets
         run: |
+          echo "🔍 搜索所有 .img.gz 镜像文件..."
           mapfile -t files < <(find . -type f -name '*.img.gz')
+      
           if [ ${#files[@]} -eq 0 ]; then
             echo "❌ 未找到 .img.gz 镜像文件！"
             exit 1
           fi
-          echo "共找到 ${#files[@]} 个镜像文件："
-          for f in "${files[@]}"; do
-            echo " - $f"
+      
+          echo "📦 共找到 ${#files[@]} 个镜像文件："
+          joined_files=""
+      
+          total_size_bytes=0
+      
+          for file in "${files[@]}"; do
+            size_bytes=$(stat -c%s "$file")
+            size_mb=$(awk "BEGIN {printf \"%.2f\", $size_bytes / 1024 / 1024}")
+            echo " - $file (${size_mb} MB)"
+            total_size_bytes=$((total_size_bytes + size_bytes))
+            joined_files+="$file"$'\n'
           done
-          joined_files=$(printf "%s\n" "${files[@]}")
+      
+          total_size_mb=$(awk "BEGIN {printf \"%.2f\", $total_size_bytes / 1024 / 1024}")
+          echo "📊 镜像总大小: ${total_size_mb} MB"
+      
           echo "ASSET_PATHS<<EOF" >> $GITHUB_ENV
           echo "$joined_files" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
-      # 修正2：使用现代release动作
-      - name: Create Release
-        id: create_release
-        uses: softprops/action-gh-release@v1  # 替代弃用的create-release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          name: "Release ${{ github.ref }}"
-          draft: false
-          prerelease: false
 
-      # 修正3：正确引用环境变量
-      - name: Upload All Images as Release Assets
-        uses: softprops/action-gh-release@v1
-        with:
-          files: ${{ env.ASSET_PATHS }}
-      # ⬇️ 安装 BaiduPCS-Go 工具
+
       - name: Install BaiduPCS-Go
         run: |
           curl -LO https://github.com/qjfoidnh/BaiduPCS-Go/releases/download/v3.9.7/BaiduPCS-Go-v3.9.7-linux-amd64.zip
           unzip BaiduPCS-Go-v3.9.7-linux-amd64.zip
           cd BaiduPCS-Go-v3.9.7-linux-amd64
           chmod +x BaiduPCS-Go
-          mv BaiduPCS-Go /usr/local/bin/
-      # 🔐 安全登录百度网盘（使用 GitHub Secret 中的 Cookie）
+          sudo mv BaiduPCS-Go /usr/local/bin/
+
       - name: Login to BaiduPCS-Go
         run: |
           BaiduPCS-Go login -cookies="${{ secrets.BAIDU_COOKIE }}"
-      # ☁️ 上传所有镜像文件到百度网盘指定路径
+
       - name: Upload All Images to Baidu Netdisk
         run: |
           echo "${{ env.ASSET_PATHS }}" > files.txt
+          echo "📁 创建网盘目录: /lcdyk有的掌机/魔改包/rocknix自动构建/${{ env.LATEST_VERSION }}"
+          BaiduPCS-Go mkdir "/lcdyk有的掌机/魔改包/rocknix自动构建/${{ env.LATEST_VERSION }}"
           while IFS= read -r file; do
             if [ -f "$file" ]; then
               echo "📤 上传中: $file"
-              BaiduPCS-Go upload "$file" "/lcdyk有的掌机/魔改包/rocknix自动构建/"
+              BaiduPCS-Go upload "$file" "/lcdyk有的掌机/魔改包/rocknix自动构建/${{ env.LATEST_VERSION }}"
             else
               echo "⚠️ 文件不存在: $file"
             fi
           done < files.txt
+
+      - name: Create Release
+        if: ${{ steps.detect_version.outputs.tag_name != '' }}
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.detect_version.outputs.tag_name }}
+          name: ${{ steps.detect_version.outputs.release_name }}
+          draft: false
+          prerelease: false
+          body: |
+            📦 版本号：${{ env.LATEST_VERSION }}
+            ✅ 构建成功！
+
+          
+      - name: Prepare Assets for GitHub Release (split >2G)
+        id: prepare_release_assets
+        run: |
+          sudo apt-get update && sudo apt-get install -y p7zip-full
+      
+          max_size=$((2 * 1024 * 1024 * 1024))
+          release_files=""
+      
+          echo "${{ env.ASSET_PATHS }}" > original_files.txt
+      
+          while IFS= read -r file; do
+            [ ! -f "$file" ] && echo "❌ $file 不存在，跳过" && continue
+      
+            size=$(stat -c%s "$file")
+            if (( size > max_size )); then
+              echo "🔧 $file 超过 2GB，执行分卷压缩"
+              base_name=$(basename "$file")
+              out_dir=$(dirname "$file")
+              split_prefix="${out_dir}/${base_name}.part"
+      
+              7z a -v1900m -mx=0 "${split_prefix}.7z" "$file"
+              for part in "${split_prefix}.7z".*; do
+                release_files+="$part"$'\n'
+              done
+            else
+              release_files+="$file"$'\n'
+            fi
+          done < original_files.txt
+      
+          echo "RELEASE_ASSETS<<EOF" >> $GITHUB_ENV
+          echo "$release_files" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+          
+      - name: Upload All Images as Release Assets (one by one)
+        if: ${{ env.RELEASE_ASSETS != '' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "${RELEASE_ASSETS}" > upload_list.txt
+          echo "📦 准备上传以下文件到 Release："
+          cat upload_list.txt
+      
+          echo "🔧 安装 GitHub CLI..."
+          sudo apt-get update
+          sudo apt-get install -y gh
+      
+          echo "📤 开始逐个上传镜像文件到 Release..."
+          while IFS= read -r file; do
+            if [ -f "$file" ]; then
+              echo "⬆️ 正在上传: $file"
+              gh release upload "${{ steps.detect_version.outputs.tag_name }}" "$file" --clobber --repo "$GITHUB_REPOSITORY" || {
+                echo "❌ 上传失败：$file"
+              }
+            else
+              echo "⚠️ 文件不存在: $file"
+            fi
+          done < upload_list.txt
+
+
+
+      - name: Push .version to mod-version branch
+        if: success() && env.LATEST_VERSION != ''
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # 拉取远程 mod-version 分支（如果存在）
+          git fetch origin mod-version || echo "🆕 mod-version 分支尚不存在"
+
+          # 切换或创建本地 mod-version 空分支（仅含 .version）
+          if git rev-parse --verify mod-version >/dev/null 2>&1; then
+            git checkout mod-version
+          else
+            git checkout --orphan mod-version
+            git rm -rf .
+          fi
+
+          # 写入并提交 .version
+          echo "${{ env.LATEST_VERSION }}" > .version
+          git add .version
+          git commit -m "🔄 保存版本号 ${{ env.LATEST_VERSION }}" --author="github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
+
+          # 强制推送至远程 mod-version 分支
+          git push origin mod-version --force
+
+          # 切回 main
+          git checkout main
