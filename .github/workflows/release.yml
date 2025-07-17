@@ -1,14 +1,49 @@
 name: Create Release with Image
 
 on:
+  schedule:
+    - cron: '0 1 * * *'  # 每天凌晨 2 点 UTC = 北京时间上午 10 点
   create:
     tags:
       - 'v*'
+
 
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
     steps:
+      - name: Check latest H700 version
+        run: |
+          latest_url=$(curl -s https://api.github.com/repos/ROCKNIX/distribution-nightly/releases \
+            | jq -r '.[0].assets[].browser_download_url' \
+            | grep 'H700' | grep 'img\.gz$' | head -n1)
+
+          if [[ -z "$latest_url" ]]; then
+            echo "❌ 无法获取最新 H700 镜像 URL"
+            exit 1
+          fi
+
+          version=$(basename "$latest_url" | grep -oP '\d{8}')
+          echo "📦 最新 H700 版本号: $version"
+
+          # 若 .version 文件不存在则创建（首次构建）
+          if [ ! -f .version ]; then
+            echo "$version" > .version
+          fi
+
+          old_version=$(cat .version)
+
+          if [ "$version" = "$old_version" ]; then
+            echo "✅ 镜像版本未更新（$version），终止 Workflow。"
+            exit 0
+          fi
+
+          echo "🔄 发现新版本: $version → 开始构建"
+          echo "$version" > .version
+
+          # 存入版本号用于后续用作上传路径
+          echo "LATEST_VERSION=$version" >> $GITHUB_ENV
+          
       - name: Checkout code
         uses: actions/checkout@v4  # 更新到最新版本
 
@@ -27,11 +62,11 @@ jobs:
           chmod +x ./build_h700_common.sh
           sudo ./build_h700_common.sh mini
           
-      - name: Build the 3566 image
-        run: |
-          chmod +x ./build_3566_common.sh 
-          sudo ./build_3566_common.sh mini
-          sudo ./build_3566_common.sh mini x55
+      # - name: Build the 3566 image
+      #   run: |
+      #     chmod +x ./build_3566_common.sh 
+      #     sudo ./build_3566_common.sh mini
+      #     sudo ./build_3566_common.sh mini x55
       # 修正1：正确缩进 + 修复路径处理
       - name: Extract All Image Assets
         id: extract_assets
@@ -85,7 +120,7 @@ jobs:
           while IFS= read -r file; do
             if [ -f "$file" ]; then
               echo "📤 上传中: $file"
-              BaiduPCS-Go upload "$file" "/lcdyk有的掌机/魔改包/rocknix自动构建/"
+              BaiduPCS-Go upload "$file" "/lcdyk有的掌机/魔改包/rocknix自动构建/${{ env.LATEST_VERSION }}"
             else
               echo "⚠️ 文件不存在: $file"
             fi
