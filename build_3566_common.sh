@@ -211,11 +211,11 @@ if [ "$UID" -ne 0 ]; then
     exit 1
 fi
 
-if [ -z "$filename" ] || [ "$filename" = "mini" ]; then
-    if [-z "$2"]; then
-        get_latest_version "Generic"
-    else
+if [ -z "$filename" ] || ! [[ "$filename" =~ ^.*\.img$ ]]; then
+    if [[ "$filename" == *x55* ]]; then
         get_latest_version "x55"
+    else
+        get_latest_version "Generic"
     fi
     filenamegz=$(basename "$download_url")
     wget ${download_url} -O ${filenamegz} | exit 1
@@ -226,7 +226,7 @@ fi
 
 echo "Welcome to build Rocknix mod IMG!"
 
-if [[ "$1" != "mini" ]]; then
+if [[ ! "$1" == mini* ]]; then
 	resize_img $filename 1024 2400 ext4
 fi
 
@@ -257,7 +257,7 @@ if [ ! -d ${download_data} ]; then
 	download_mod_data ${download_data}
 fi
 
-if [[ "$1" == "mini" ]]; then
+if [[ "$1" == mini* ]]; then
 	copy_minimal_files
 else
 	cp ${download_data}/* ${mount_point_storage}/data/
@@ -294,7 +294,7 @@ rm -rf ${system_root}
 rm -rf ${mount_point}
 rm -rf ${mount_point_storage}
 
-if [ "$1" = "mini" ]
+if [[ "$1" == mini* ]]
 then
 	new_filename="${filename/.img/-mod.img}"
 	mv ${filename} ${new_filename}
