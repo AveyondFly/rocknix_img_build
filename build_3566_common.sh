@@ -272,7 +272,7 @@ sed -i '/mod_by_kk/!s/official/official_mod_by_kk/g' ${system_root}/etc/motd
 sed -i '/mod_by_kk/!s/nightly/nightly_mod_by_kk/g' ${system_root}/etc/os-release
 sed -i '/mod_by_kk/!s/official/official_mod_by_kk/g' ${system_root}/etc/os-release
 
-cp -rf ${common_dev}/3366/*  ${mount_point}/device_trees/
+cp -rf ${common_dev}/3566/*  ${mount_point}/device_trees/
 
 #read -p "Press any key to continue..."
 
@@ -294,7 +294,7 @@ rm -rf ${system_root}
 rm -rf ${mount_point}
 rm -rf ${mount_point_storage}
 
-if [ "$1" = "mini*" ]; then
+if [[ "$1" == mini* ]]; then
   new_filename="${filename/.img/-mini-mod.img}"
 else
   new_filename="${filename/.img/-mod.img}"
