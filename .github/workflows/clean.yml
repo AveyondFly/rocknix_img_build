@@ -1,0 +1,56 @@
+name: 🧹 清理构建记录与百度云构建目录
+
+on:
+  schedule:
+    - cron: "0 4 * * *"    # 每天中午12点（北京时间，UTC+8）
+    - cron: "0 16 * * *"   # 每天晚上12点（北京时间，UTC+8）
+  workflow_dispatch:
+
+jobs:
+  cleanup:
+    name: 🧹 清理构建记录
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🧾 检出仓库
+        uses: actions/checkout@v4
+
+      - name: 📁 清理百度云构建路径（保留最近10个）
+        run: |
+          echo "⬇️ 下载 BaiduPCS-Go v3.9.7..."
+          curl -Lo pcs.zip https://github.com/qjfoidnh/BaiduPCS-Go/releases/download/v3.9.7/BaiduPCS-Go-v3.9.7-linux-amd64.zip
+          unzip pcs.zip
+          mv BaiduPCS-Go-v3.9.7-linux-amd64/BaiduPCS-Go .
+          chmod +x BaiduPCS-Go
+          sudo mv BaiduPCS-Go /usr/local/bin/
+
+          echo "🔐 使用 Cookie 登录 BaiduPCS-Go..."
+          BaiduPCS-Go login -cookies="${{ secrets.BAIDU_COOKIE }}"
+
+          FOLDER="/lcdyk有的掌机/魔改包/rocknix自动构建"
+          echo "📂 检查目录：$FOLDER"
+
+          DIRS=$(BaiduPCS-Go ls "$FOLDER" | grep "^d" | awk '{print $2}')
+          COUNT=$(echo "$DIRS" | wc -l)
+
+          echo "📦 当前子目录数量：$COUNT"
+
+          if [ "$COUNT" -gt 10 ]; then
+            DELETE_COUNT=$((COUNT - 10))
+            echo "🧹 需要删除最旧的 $DELETE_COUNT 个目录"
+
+            echo "$DIRS" | sort | head -n "$DELETE_COUNT" | while read dir; do
+              echo "❌ 删除：$FOLDER/$dir"
+              BaiduPCS-Go rm -rf "$FOLDER/$dir"
+            done
+          else
+            echo "✅ 当前目录数量未超过限制，无需清理"
+          fi
+
+      - name: 🔖 清理 GitHub Releases（保留最近10个）
+        uses: dev-drprasad/delete-older-releases@v0.3.3
+        with:
+          keep_latest: 10
+          delete_tags: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
