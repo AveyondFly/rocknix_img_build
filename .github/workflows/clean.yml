@@ -2,22 +2,22 @@ name: 🧹 清理构建记录与百度云构建目录
 
 on:
   schedule:
-    - cron: "0 4 * * *"    # 每天中午12点（北京时间，UTC+8）
-    - cron: "0 16 * * *"   # 每天晚上12点（北京时间，UTC+8）
+    - cron: "0 4 * * *"
+    - cron: "0 16 * * *"
   workflow_dispatch:
 
 jobs:
   cleanup:
-    name: 🧹 清理构建记录
+    name: 🧹 自动清理百度云与 GitHub Releases
     runs-on: ubuntu-latest
 
     steps:
       - name: 🧾 检出仓库
         uses: actions/checkout@v4
 
-      - name: 📁 清理百度云构建路径（保留最近10个）
+      - name: ☁️ 清理百度云构建目录（nightly & stable 各保留 5 个）
         run: |
-          echo "⬇️ 下载 BaiduPCS-Go v3.9.7..."
+          echo "⬇️ 下载 BaiduPCS-Go..."
           curl -Lo pcs.zip https://github.com/qjfoidnh/BaiduPCS-Go/releases/download/v3.9.7/BaiduPCS-Go-v3.9.7-linux-amd64.zip
           unzip pcs.zip
           mv BaiduPCS-Go-v3.9.7-linux-amd64/BaiduPCS-Go .
@@ -27,30 +27,106 @@ jobs:
           echo "🔐 使用 Cookie 登录 BaiduPCS-Go..."
           BaiduPCS-Go login -cookies="${{ secrets.BAIDU_COOKIE }}"
 
-          FOLDER="/lcdyk有的掌机/魔改包/rocknix自动构建"
-          echo "📂 检查目录：$FOLDER"
+          for TYPE in nightly stable; do
+            FOLDER="/lcdyk有的掌机/魔改包/rocknix自动构建/$TYPE"
+            echo "📂 检查目录：$FOLDER"
 
-          DIRS=$(BaiduPCS-Go ls "$FOLDER" | grep "^d" | awk '{print $2}')
-          COUNT=$(echo "$DIRS" | wc -l)
+            DIRS=$(BaiduPCS-Go ls "$FOLDER" | grep "^d" | awk '{print $2}')
+            COUNT=$(echo "$DIRS" | wc -l)
 
-          echo "📦 当前子目录数量：$COUNT"
+            echo "📦 当前子目录数量：$COUNT"
 
-          if [ "$COUNT" -gt 10 ]; then
-            DELETE_COUNT=$((COUNT - 10))
-            echo "🧹 需要删除最旧的 $DELETE_COUNT 个目录"
+            if [ "$COUNT" -gt 5 ]; then
+              DELETE_COUNT=$((COUNT - 5))
+              echo "🧹 [$TYPE] 需要删除最旧的 $DELETE_COUNT 个目录"
 
-            echo "$DIRS" | sort | head -n "$DELETE_COUNT" | while read dir; do
-              echo "❌ 删除：$FOLDER/$dir"
-              BaiduPCS-Go rm -rf "$FOLDER/$dir"
+              echo "$DIRS" | sort | head -n "$DELETE_COUNT" | while read dir; do
+                echo "❌ 删除：$FOLDER/$dir"
+                BaiduPCS-Go rm -rf "$FOLDER/$dir"
+              done
+            else
+              echo "✅ [$TYPE] 当前目录数量未超过限制，无需清理"
+            fi
+          done
+          
+      - name: 🗑️ 清理 GitHub Releases（stable、nightly 各保留5个，其余全部删除 + 删除孤立 tag）
+        run: |
+          echo "🔍 获取所有 Releases..."
+          ALL_RELEASES=$(gh release list --limit 100 --json tagName,name --jq '.[] | "\(.tagName):::\(.name)"')
+      
+          echo "🔍 获取所有 Git Tags..."
+          git fetch --tags --force
+          ALL_TAGS=$(git tag)
+      
+          # 提取 release 中已有 tag 的集合
+          RELEASE_TAGS=$(echo "$ALL_RELEASES" | awk -F ':::' '{print $1}' | sort -u)
+          ORPHAN_TAGS=$(comm -23 <(echo "$ALL_TAGS" | sort -u) <(echo "$RELEASE_TAGS"))
+      
+          echo "💣 孤立 tag 总数: $(echo "$ORPHAN_TAGS" | grep -c '^' || true)"
+          echo "$ORPHAN_TAGS" | while read tag; do
+            [ -n "$tag" ] || continue
+            echo "❌ 删除孤立 tag: $tag"
+            git tag -d "$tag"         2>/dev/null || echo "⚠️ 本地不存在 tag：$tag"
+            git push --delete origin "$tag" 2>/dev/null || echo "⚠️ 远程不存在 tag：$tag"
+          done
+      
+          # ========== 原本的逻辑（分类、统计、清理） ==========
+          NIGHTLY_LIST=""
+          STABLE_LIST=""
+          OTHER_LIST=""
+          while IFS=::: read -r tag name; do
+            if [ -z "$tag" ] || [ "$tag" = "null" ]; then continue; fi
+            [ "$name" = "null" ] && name=""
+            if [[ "$tag" =~ [Nn][Ii][Gg][Hh][Tt][Ll][Yy] ]]; then
+              NIGHTLY_LIST+="$tag:::$name"$'\n'
+            elif [[ "$tag" =~ [Ss][Tt][Aa][Bb][Ll][Ee] ]]; then
+              STABLE_LIST+="$tag:::$name"$'\n'
+            else
+              OTHER_LIST+="$tag:::$name"$'\n'
+            fi
+          done <<< "$ALL_RELEASES"
+      
+          # 打印统计信息函数
+          print_list_info() {
+            local LIST="$1"
+            local LABEL="$2"
+            local ICON="$3"
+            local COUNT=$(echo "$LIST" | grep -v '^\s*$' | wc -l || true)
+            echo "🔢 [$LABEL] 总数: $COUNT"
+            if [ "$COUNT" -gt 0 ]; then
+              echo "$LIST" | while IFS=::: read -r tag name; do
+                [ -z "$tag" ] && continue
+                echo "    $ICON $tag → $name"
+              done
+            fi
+          }
+      
+          print_list_info "$NIGHTLY_LIST" "nightly" "🌙"
+          print_list_info "$STABLE_LIST"  "stable"  "🟢"
+          print_list_info "$OTHER_LIST"   "其他"    "❓"
+      
+          # 通用清理函数（保留最新 N 个）
+          clean_list_keep() {
+            local LIST="$1"
+            local LABEL="$2"
+            local ICON="$3"
+            local KEEP="$4"
+            echo "$LIST" | grep -v '^\s*$' | sort -r | tail -n +$((KEEP+1)) | while IFS=::: read -r tag name; do
+              echo "🗑️ 删除 [$LABEL] $tag → $name"
+              gh release delete "$tag" -y 2>/dev/null || echo "⚠️ 无 Release 可删：$tag"
+              gh api -X DELETE "repos/${{ github.repository }}/git/refs/tags/$tag" || echo "⚠️ 无 tag 可删：$tag"
             done
-          else
-            echo "✅ 当前目录数量未超过限制，无需清理"
-          fi
-
-      - name: 🔖 清理 GitHub Releases（保留最近10个）
-        uses: dev-drprasad/delete-older-releases@v0.3.3
-        with:
-          keep_latest: 10
-          delete_tags: true
+          }
+      
+          # 清理 nightly/stable，保留最新 5 个
+          clean_list_keep "$NIGHTLY_LIST" "nightly" "🌙" 5
+          clean_list_keep "$STABLE_LIST" "stable" "🟢" 5
+      
+          # 清理所有其他类型（全部删除）
+          echo "$OTHER_LIST" | grep -v '^\s*$' | while IFS=::: read -r tag name; do
+            echo "❌ 删除 [未知类型] $tag → $name"
+            gh release delete "$tag" -y 2>/dev/null || echo "⚠️ 无 Release 可删：$tag"
+            gh api -X DELETE "repos/${{ github.repository }}/git/refs/tags/$tag" || echo "⚠️ 无 tag 可删：$tag"
+          done
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
