@@ -236,7 +236,7 @@ jobs:
       - name: 💾 保存当前版本号到 mod-version 分支
         run: |
           ver="${{ needs.version-check.outputs.LATEST_VERSION }}"
-          key="rocknix-stable"
+          key="rocknix-nightly"
       
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
