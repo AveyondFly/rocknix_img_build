@@ -1,4 +1,4 @@
-name: 全自动魔改镜像发布
+name: 🤖🌙 rocknix-nightly 全自动镜像魔改
 
 on:
   workflow_dispatch:
@@ -16,11 +16,11 @@ on:
         required: false
         default: ""
   schedule:
-    - cron: '0 1 * * *'
-    - cron: '0 13 * * *'
+    - cron: '0 0 * * *'
+    - cron: '0 12 * * *'
   create:
     tags:
-      - 'v*'
+      - 'nightly-*'
 
 jobs:
 
@@ -40,15 +40,22 @@ jobs:
           fetch-depth: 0
 
       - name: 📂 恢复上次构建版本号
+        id: restore
         run: |
+          key="rocknix-nightly"
           echo "📥 正在尝试从 mod-version 分支恢复 .version 文件..."
           git fetch origin mod-version || echo "⚠️ 无法获取 mod-version 分支，可能是首次构建。"
+      
           if git show origin/mod-version:.version > .version 2>/dev/null; then
             echo "✅ 成功恢复 .version 文件，内容如下："
             cat .version
+            last_version=$(grep "^$key:" .version | cut -d':' -f2 || true)
+            echo "🧾 恢复到的 $key 版本号为: $last_version"
           else
             echo "🆕 未检测到历史构建记录，视为首次构建。"
+            last_version=""
           fi
+          echo "LAST_VERSION=$last_version" >> "$GITHUB_OUTPUT"
 
       - name: 🔍 获取最新版本并判断是否跳过构建（含重试）
         id: detect
@@ -57,7 +64,7 @@ jobs:
         run: |
           retry=0
           max_retry=10
-
+          key="rocknix-nightly"
           AUTH_HEADER=""
           if [ -n "$GH_PAT" ]; then
             AUTH_HEADER="Authorization: token $GH_PAT"
@@ -68,7 +75,6 @@ jobs:
 
           while [ $retry -lt $max_retry ]; do
             echo "🌐 第 $((retry+1)) 次尝试获取版本号..."
-
             resp=$(curl -sSL -H "Accept: application/vnd.github+json" \
               ${AUTH_HEADER:+-H "$AUTH_HEADER"} \
               https://api.github.com/repos/ROCKNIX/distribution-nightly/releases)
@@ -91,7 +97,6 @@ jobs:
                 fi
               fi
             fi
-
             retry=$((retry+1))
             sleep 30
           done
@@ -101,26 +106,31 @@ jobs:
             exit 1
           fi
 
-          if [ "${{ github.event.inputs.force_build }}" != "true" ] && [ -f .version ]; then
-            old=$(cat .version)
-            echo "📁 上次构建版本：$old"
-            if [ "$old" = "$ver" ]; then
-              echo "🟡 当前版本未更新，跳过构建"
-              echo "SKIP_BUILD=true" >> "$GITHUB_OUTPUT"
-              exit 0
+          # 判断是否跳过构建
+          if [ "${{ github.event.inputs.force_build }}" != "true" ]; then
+            if [ -f .version ]; then
+              old=$(grep "^$key:" .version | cut -d':' -f2 || true)
+              echo "📁 上次构建版本 $key: $old"
+              if [ "$old" = "$ver" ]; then
+                echo "🟡 当前版本未更新，跳过构建"
+                echo "SKIP_BUILD=true" >> "$GITHUB_OUTPUT"
+                exit 0
+              fi
+            else
+              echo "📭 未找到 .version 文件，将视为首次构建"
             fi
           fi
 
           echo "SKIP_BUILD=false" >> "$GITHUB_OUTPUT"
 
           if [ -n "${{ github.event.inputs.manual_tag }}" ]; then
-            echo "TAG_NAME=${{ github.event.inputs.manual_tag }}" >> "$GITHUB_OUTPUT"
-            echo "RELEASE_NAME=手动构建成功 - $ver" >> "$GITHUB_OUTPUT"
+            echo "TAG_NAME=nightly-${{ github.event.inputs.manual_tag }}" >> "$GITHUB_OUTPUT"
+            echo "RELEASE_NAME=手动构建成功 - nightly - $ver" >> "$GITHUB_OUTPUT"
           else
-            echo "TAG_NAME=auto-$ver" >> "$GITHUB_OUTPUT"
-            echo "RELEASE_NAME=自动构建成功 - $ver" >> "$GITHUB_OUTPUT"
+            echo "TAG_NAME=auto-nightly-$ver" >> "$GITHUB_OUTPUT"
+            echo "RELEASE_NAME=自动构建成功 - nightly - $ver" >> "$GITHUB_OUTPUT"
           fi
-          
+
       - name: 🧮 解析应构建架构（含 mini）
         id: matrix
         run: |
@@ -129,35 +139,26 @@ jobs:
           else
             base=("3566" "x55" "3326" "h700")
           fi
-      
-          result="["
-          for arch in "${base[@]}"; do
-            result+="\"$arch\",\"${arch}_mini\","
-          done
-          result="${result%,}]"
-      
-          echo "✅ 构建架构矩阵：$result"
-          echo "BUILD_ARCHS=$result" >> "$GITHUB_OUTPUT"
 
+          result="["; for arch in "${base[@]}"; do result+="\"$arch\",\"${arch}_mini\","; done
+          result="${result%,}]"
+          echo "BUILD_ARCHS=$result" >> "$GITHUB_OUTPUT"
 
       - name: 获取北京时间（可选）
         run: |
           echo "BUILD_TIME=$(date -u -d '+8 hour' '+%Y-%m-%d %H:%M:%S')" >> "$GITHUB_ENV"
 
-      - name: 🚀 创建 GitHub 发布（空发布）
+      - name: 🚀 创建 GitHub 发布（Nightly）
         if: steps.detect.outputs.SKIP_BUILD != 'true'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.detect.outputs.TAG_NAME }}
-          name: "[Rocknix 镜像构建] ${{ steps.detect.outputs.LATEST_VERSION }}"
+          name: "[Rocknix Nightly构建] ${{ steps.detect.outputs.LATEST_VERSION }}"
           body: |
-            🎉 本次构建成功！
-      
+            🎉 本次 Nightly 构建成功！
             - 版本号: **${{ steps.detect.outputs.LATEST_VERSION }}**
             - 类型: `${{ steps.detect.outputs.RELEASE_NAME }}`
             - 构建时间: ${{ env.BUILD_TIME }}
-      
-            📦 构建架构: `${{ steps.matrix.outputs.BUILD_ARCHS }}`
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -170,81 +171,54 @@ jobs:
     strategy:
       matrix:
         arch: ${{ fromJson(needs.version-check.outputs.BUILD_ARCHS) }}
-  
     steps:
-  
       - name: 🧾 检出仓库
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-  
-      - name: 🔧 安装构建依赖
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y xmlstarlet jq p7zip-full gh
-  
-      - name: 🔐 安装并登录 BaiduPCS-Go
-        run: |
-          curl -Lo pcs.zip https://github.com/qjfoidnh/BaiduPCS-Go/releases/download/v3.9.7/BaiduPCS-Go-v3.9.7-linux-amd64.zip
-          unzip pcs.zip
-          mv BaiduPCS-Go-v3.9.7-linux-amd64/BaiduPCS-Go .
-          chmod +x BaiduPCS-Go
-          sudo mv BaiduPCS-Go /usr/local/bin/
-          BaiduPCS-Go login -cookies="${{ secrets.BAIDU_COOKIE }}"
-  
-      - name: 🔨 构建镜像：${{ matrix.arch }}
-        env:
-          GH_PAT: ${{ secrets.GH_PAT }}  # 避免使用 GITHUB_TOKEN（系统保留）
-        run: |
-          echo "▶️ 执行构建：build_mod_img.sh ${{ matrix.arch }}"
-          chmod +x ./build_mod_img.sh
-          sudo GH_PAT="${GH_PAT}" ./build_mod_img.sh ${{ matrix.arch }}
-      
-                  
-        
-      - name: ☁️ 上传到百度云（仅非 mini）
-        if: "!endsWith(matrix.arch, '_mini')"  # 正确判断是否为非 mini
-        run: |
-          ver=${{ needs.version-check.outputs.LATEST_VERSION }}
-          echo "📁 当前构建架构：${{ matrix.arch }}"
-          echo "📦 构建产物列表："
-          
-          ls -lh *.img.gz || { echo "❌ 没有找到构建产物 *.img.gz，跳过上传"; exit 1; }
-      
-          echo "📤 开始上传非 mini 镜像到百度网盘..."
-      
-          for f in *.img.gz; do
-            if [[ "$f" == *mini* ]]; then
-              echo "⏩ 忽略 mini 镜像：$f"
-            else
-              size=$(du -h "$f" | cut -f1)
-              echo "📤 上传：$f （大小：$size）"
-              BaiduPCS-Go upload "$f" "/lcdyk有的掌机/魔改包/rocknix自动构建/$ver"
-            fi
-          done
-      
-          echo "✅ 百度网盘上传完成"
-
-  
-      - name: 🪓 分卷并上传至 GitHub Release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          tag=${{ needs.version-check.outputs.TAG_NAME }}
-          max=$((2*1024*1024*1024))
-          for f in *.img.gz; do
-            if [ $(stat -c%s "$f") -gt $max ]; then
-              echo "📏 $f 超过 2GB，执行分卷..."
-              7z a -v1900m -mx=0 "${f}.7z" "$f" && rm -f "$f"
-              for part in "${f}.7z".*; do
-                echo "⬆️ 上传分卷文件：$part"
-                gh release upload "$tag" "$part" --clobber
-              done
-            else
-              echo "⬆️ 上传文件：$f"
-              gh release upload "$tag" "$f" --clobber
-            fi
-          done
+      # - name: 🔧 安装构建依赖
+      #   run: |
+      #     sudo apt-get update
+      #     sudo apt-get install -y xmlstarlet jq p7zip-full gh
+      # - name: 🔐 安装并登录 BaiduPCS-Go
+      #   run: |
+      #     curl -Lo pcs.zip https://github.com/qjfoidnh/BaiduPCS-Go/releases/download/v3.9.7/BaiduPCS-Go-v3.9.7-linux-amd64.zip
+      #     unzip pcs.zip
+      #     mv BaiduPCS-Go-v3.9.7-linux-amd64/BaiduPCS-Go .
+      #     chmod +x BaiduPCS-Go
+      #     sudo mv BaiduPCS-Go /usr/local/bin/
+      #     BaiduPCS-Go login -cookies="${{ secrets.BAIDU_COOKIE }}"
+      # - name: 🔨 构建镜像：${{ matrix.arch }}
+      #   env:
+      #     GH_PAT: ${{ secrets.GH_PAT }}
+      #   run: |
+      #     chmod +x ./build_mod_img.sh
+      #     sudo GH_PAT="${GH_PAT}" ./build_mod_img.sh ${{ matrix.arch }}
+      # - name: ☁️ 上传到百度云（仅非 mini）
+      #   if: "!endsWith(matrix.arch, '_mini')"
+      #   run: |
+      #     ver=${{ needs.version-check.outputs.LATEST_VERSION }}
+      #     for f in *.img.gz; do
+      #       if [[ "$f" != *mini* ]]; then
+      #         BaiduPCS-Go upload "$f" "/lcdyk有的掌机/魔改包/rocknix自动构建/nightly/$ver"
+      #       fi
+      #     done
+      # - name: 🪓 分卷并上传至 GitHub Release
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   run: |
+      #     tag=${{ needs.version-check.outputs.TAG_NAME }}
+      #     max=$((2*1024*1024*1024))
+      #     for f in *.img.gz; do
+      #       if [ $(stat -c%s "$f") -gt $max ]; then
+      #         7z a -v1900m -mx=0 "${f}.7z" "$f" && rm -f "$f"
+      #         for part in "${f}.7z".*; do
+      #           gh release upload "$tag" "$part" --clobber
+      #         done
+      #       else
+      #         gh release upload "$tag" "$f" --clobber
+      #       fi
+      #     done
 
   save-version:
     name: 保存版本号
@@ -259,52 +233,42 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: 🔍 打印来自前一个 Job 的版本号
-        run: echo "🧾 最新版本号：${{ needs.version-check.outputs.LATEST_VERSION }}"
-
       - name: 💾 保存当前版本号到 mod-version 分支
         run: |
           ver="${{ needs.version-check.outputs.LATEST_VERSION }}"
-          echo "📥 写入当前版本号 ver=$ver"
-
-          if [ -z "$ver" ]; then
-            echo "❌ 版本号为空，终止写入"
-            exit 1
-          fi
-
+          key="rocknix-stable"
+      
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
           git fetch origin || true
-
+      
           if git ls-remote --exit-code --heads origin mod-version >/dev/null; then
             git checkout mod-version
           else
             git checkout --orphan mod-version
             git rm -rf . || true
           fi
-
-          echo "$ver" > .version
-
-          # 如果当前处于 orphan（首次构建新分支），则强制提交
-          if git rev-parse --verify HEAD >/dev/null 2>&1; then
-            # HEAD 存在，正常 diff 检查
-            if ! git diff --cached --quiet || ! git diff --quiet; then
-              git add .version
-              git commit -m "🔄 保存版本号 $ver"
-              git push origin mod-version --force
-            else
-              echo "🟢 无需提交，版本号未变更。"
-            fi
+      
+          touch .version
+      
+          # 原始文件备份以便后续 diff
+          cp .version .version.bak || true
+      
+          if grep -q "^$key:" .version; then
+            sed -i "s/^$key:.*/$key:$ver/" .version
           else
-            # HEAD 不存在，是孤立分支，首次构建必须提交
-            echo "🆕 首次构建，强制提交 .version 文件"
+            echo "$key:$ver" >> .version
+          fi
+      
+          # 如果内容有变动才提交
+          if ! cmp -s .version .version.bak; then
             git add .version
-            git commit -m "🔰 初始化版本号 $ver"
+            git commit -m "🔄 更新版本号 $key:$ver"
             git push origin mod-version --force
+          else
+            echo "✅ 版本号未变化（$key:$ver），跳过提交。"
           fi
 
-          
   cleanup-on-failure:
     name: ❌ 构建失败清理
     if: failure() && needs.version-check.outputs.SKIP_BUILD != 'true'
@@ -315,14 +279,8 @@ jobs:
     steps:
       - name: 🧹 清理 Release 与 tag（仅构建失败时执行）
         env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}  # 自定义 token，避免默认 GITHUB_TOKEN 权限限制
+          GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           tag="${{ needs.version-check.outputs.TAG_NAME }}"
-          echo "🔍 检测到失败，清理 Release 和 Tag：$tag"
-  
-          echo "🗑️ 删除 Release..."
           gh release delete "$tag" -y || echo "⚠️ Release 删除失败或不存在"
-  
-          echo "🗑️ 删除 Tag..."
           gh api -X DELETE "repos/${{ github.repository }}/git/refs/tags/$tag" || echo "⚠️ Tag 删除失败或不存在"
-

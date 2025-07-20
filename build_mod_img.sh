@@ -12,12 +12,14 @@ IS_X55=false
 IS_3566=false
 IS_3326=false
 IS_H700=false
+IS_STABLE=false
 
 if [[ "$DEVICE" == *mini* ]]; then IS_MINI=true; fi
 if [[ "$DEVICE" == *x55* ]]; then IS_X55=true; fi
 if [[ "$DEVICE" == 3566* || "$DEVICE" == x55* ]]; then IS_3566=true; fi
 if [[ "$DEVICE" == 3326* ]]; then IS_3326=true; fi
 if [[ "$DEVICE" == h700* ]]; then IS_H700=true; fi
+if [[ "$DEVICE" == *stable ]]; then IS_STABLE=true; fi
 
 if [ "$UID" -ne 0 ]; then
   echo -e "\033[1;31m❌ 请使用 sudo 执行\033[0m"
@@ -267,6 +269,17 @@ get_latest_version() {
         *) echo -e "\033[1;31m❌ 不支持的设备类型：$DEVICE\033[0m" && exit 1 ;;
     esac
 
+    # 仓库地址判断
+    if [[ "$IS_STABLE" == "true" ]]; then
+        REPO="ROCKNIX/distribution"
+        VERSION_TYPE="🟢 stable"
+    else
+        REPO="ROCKNIX/distribution-nightly"
+        VERSION_TYPE="🔵 nightly"
+    fi
+
+    echo -e "\033[1;36m🔍 当前拉取源：$VERSION_TYPE ($REPO)\033[0m"
+
     # 环境变量兼容处理
     if [[ -n "$GH_PAT" ]]; then
         AUTH_HEADER="Authorization: token $GH_PAT"
@@ -280,7 +293,7 @@ get_latest_version() {
 
         response=$(curl -sSL -H "Accept: application/vnd.github+json" \
             ${AUTH_HEADER:+-H "$AUTH_HEADER"} \
-            https://api.github.com/repos/ROCKNIX/distribution-nightly/releases)
+            https://api.github.com/repos/$REPO/releases)
 
         # 检查 API 是否限制
         if echo "$response" | grep -q "API rate limit exceeded"; then
@@ -310,6 +323,7 @@ get_latest_version() {
     echo -e "\033[1;31m❌ 连续尝试 30 次后仍未找到镜像，终止执行\033[0m"
     return 1
 }
+
 
 copy_minimal_files() {
     echo -e "\033[1;36m📦 根据设备类型选择 minimal 文件...\033[0m"
@@ -571,4 +585,3 @@ gzip "$output_file"
 
 size=$(du -h "$output_file.gz" | cut -f1)
 echo -e "\033[1;32m✅ 构建完成：$output_file.gz （大小：$size）\033[0m"
-
