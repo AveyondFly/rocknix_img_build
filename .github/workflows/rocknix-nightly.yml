@@ -176,49 +176,49 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      # - name: 🔧 安装构建依赖
-      #   run: |
-      #     sudo apt-get update
-      #     sudo apt-get install -y xmlstarlet jq p7zip-full gh
-      # - name: 🔐 安装并登录 BaiduPCS-Go
-      #   run: |
-      #     curl -Lo pcs.zip https://github.com/qjfoidnh/BaiduPCS-Go/releases/download/v3.9.7/BaiduPCS-Go-v3.9.7-linux-amd64.zip
-      #     unzip pcs.zip
-      #     mv BaiduPCS-Go-v3.9.7-linux-amd64/BaiduPCS-Go .
-      #     chmod +x BaiduPCS-Go
-      #     sudo mv BaiduPCS-Go /usr/local/bin/
-      #     BaiduPCS-Go login -cookies="${{ secrets.BAIDU_COOKIE }}"
-      # - name: 🔨 构建镜像：${{ matrix.arch }}
-      #   env:
-      #     GH_PAT: ${{ secrets.GH_PAT }}
-      #   run: |
-      #     chmod +x ./build_mod_img.sh
-      #     sudo GH_PAT="${GH_PAT}" ./build_mod_img.sh ${{ matrix.arch }}
-      # - name: ☁️ 上传到百度云（仅非 mini）
-      #   if: "!endsWith(matrix.arch, '_mini')"
-      #   run: |
-      #     ver=${{ needs.version-check.outputs.LATEST_VERSION }}
-      #     for f in *.img.gz; do
-      #       if [[ "$f" != *mini* ]]; then
-      #         BaiduPCS-Go upload "$f" "/lcdyk有的掌机/魔改包/rocknix自动构建/nightly/$ver"
-      #       fi
-      #     done
-      # - name: 🪓 分卷并上传至 GitHub Release
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   run: |
-      #     tag=${{ needs.version-check.outputs.TAG_NAME }}
-      #     max=$((2*1024*1024*1024))
-      #     for f in *.img.gz; do
-      #       if [ $(stat -c%s "$f") -gt $max ]; then
-      #         7z a -v1900m -mx=0 "${f}.7z" "$f" && rm -f "$f"
-      #         for part in "${f}.7z".*; do
-      #           gh release upload "$tag" "$part" --clobber
-      #         done
-      #       else
-      #         gh release upload "$tag" "$f" --clobber
-      #       fi
-      #     done
+      - name: 🔧 安装构建依赖
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xmlstarlet jq p7zip-full gh
+      - name: 🔐 安装并登录 BaiduPCS-Go
+        run: |
+          curl -Lo pcs.zip https://github.com/qjfoidnh/BaiduPCS-Go/releases/download/v3.9.7/BaiduPCS-Go-v3.9.7-linux-amd64.zip
+          unzip pcs.zip
+          mv BaiduPCS-Go-v3.9.7-linux-amd64/BaiduPCS-Go .
+          chmod +x BaiduPCS-Go
+          sudo mv BaiduPCS-Go /usr/local/bin/
+          BaiduPCS-Go login -cookies="${{ secrets.BAIDU_COOKIE }}"
+      - name: 🔨 构建镜像：${{ matrix.arch }}
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+        run: |
+          chmod +x ./build_mod_img.sh
+          sudo GH_PAT="${GH_PAT}" ./build_mod_img.sh ${{ matrix.arch }}
+      - name: ☁️ 上传到百度云（仅非 mini）
+        if: "!endsWith(matrix.arch, '_mini')"
+        run: |
+          ver=${{ needs.version-check.outputs.LATEST_VERSION }}
+          for f in *.img.gz; do
+            if [[ "$f" != *mini* ]]; then
+              BaiduPCS-Go upload "$f" "/lcdyk有的掌机/魔改包/rocknix自动构建/nightly/$ver"
+            fi
+          done
+      - name: 🪓 分卷并上传至 GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          tag=${{ needs.version-check.outputs.TAG_NAME }}
+          max=$((2*1024*1024*1024))
+          for f in *.img.gz; do
+            if [ $(stat -c%s "$f") -gt $max ]; then
+              7z a -v1900m -mx=0 "${f}.7z" "$f" && rm -f "$f"
+              for part in "${f}.7z".*; do
+                gh release upload "$tag" "$part" --clobber
+              done
+            else
+              gh release upload "$tag" "$f" --clobber
+            fi
+          done
 
   save-version:
     name: 保存版本号
