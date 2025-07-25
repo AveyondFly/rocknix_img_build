@@ -15,9 +15,9 @@ on:
         description: "（可选）要构建的架构（多个用逗号分隔，如 3566,x55,h700）"
         required: false
         default: ""
-  schedule:
-    - cron: '0 2 * * *'
-    - cron: '0 14 * * *'
+  # schedule:
+  #   - cron: '0 2 * * *'
+  #   - cron: '0 14 * * *'
   create:
     tags:
       - 'stable-*'
@@ -138,11 +138,19 @@ jobs:
           if [ -n "${{ github.event.inputs.selected_archs }}" ]; then
             IFS=',' read -ra base <<< "${{ github.event.inputs.selected_archs }}"
           else
-            base=("3566" "x55" "3326" "h700")
+            base=("3566 20250517" "x55 20250517" "3326 20250517" "h700 20250517")
           fi
 
-          result="["; for arch in "${base[@]}"; do result+="\"${arch}_stable\","; done
+          result="["
+          for arch in "${base[@]}"; do
+            # 拆分架构和版本
+            IFS=' ' read -r arch_name version <<< "$arch"
+            new_arch="${arch_name}_stable $version"
+            result+="\"$new_arch\","
+          done
+
           result="${result%,}]"
+          
           echo "BUILD_ARCHS=$result" >> "$GITHUB_OUTPUT"
 
       - name: 获取北京时间（可选）
@@ -213,7 +221,9 @@ jobs:
           done
   upload-to-baidu:
     name: ☁️ 上传所有非 mini 镜像
-    needs: build-and-package
+    needs: 
+      - build-and-package
+      - version-check
     runs-on: ubuntu-latest
     if: success() && needs.version-check.outputs.SKIP_BUILD != 'true'
     steps:
@@ -233,7 +243,7 @@ jobs:
 
       - name: ☁️ 上传非 mini 镜像
         run: |
-          ver=${{ needs.version-check.outputs.LATEST_VERSION }}
+          ver="${{ needs.version-check.outputs.LATEST_VERSION }}"
           remote_dir="/lcdyk有的掌机/魔改包/rocknix自动构建/stable/$ver"
 
           echo "📁 确保远程目录存在：$remote_dir"

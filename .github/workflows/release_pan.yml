@@ -12,8 +12,8 @@ on:
       manual_tag:
         description: "（可选）手动构建的 tag 名（如 20250722）"
         required: false
-  schedule:
-    - cron: '0 3 * * *'
+  # schedule:
+  #   - cron: '0 3 * * *'
   create:
     tags:
       - 'v*'
@@ -108,28 +108,27 @@ jobs:
       - name: 构建 3566 映像
         run: |
           chmod +x ./build_3566_common.sh
-          sudo ./build_3566_common.sh
-          
+          sudo ./build_3566_common.sh nightly-20250712
           
       - name: 构建 X55 映像
         run: |
           chmod +x ./build_3566_common.sh
-          sudo ./build_3566_common.sh x55
-          
+          sudo ./build_3566_common.sh x55 nightly-20250712
+
       - name: 构建 3326 映像
         run: |
           chmod +x ./build_3326_common.sh
-          sudo ./build_3326_common.sh
+          sudo ./build_3326_common.sh nightly-20250712
 
       - name: 构建 3326 emmc 映像
         run: |
           chmod +x ./build_3326_emmc.sh
-          sudo ./build_3326_emmc.sh
+          sudo ./build_3326_emmc.sh nightly-20250712
 
       - name: 构建 H700 映像
         run: |
           chmod +x ./build_h700_common.sh
-          sudo ./build_h700_common.sh
+          sudo ./build_h700_common.sh nightly-20250712
 
       - name: 提取所有镜像
         id: extract_assets

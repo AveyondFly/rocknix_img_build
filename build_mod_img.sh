@@ -7,12 +7,15 @@ system_root="SYSTEM-root"
 download_data="data_files"
 
 DEVICE="$1"
+RELEASE_VERSION="$2"
 IS_MINI=false
 IS_X55=false
 IS_3566=false
 IS_3326=false
 IS_H700=false
 IS_STABLE=false
+IS_BACKUPREPO=false
+RELEASE_VERSION=""
 
 if [[ "$DEVICE" == *mini* ]]; then IS_MINI=true; fi
 if [[ "$DEVICE" == *x55* ]]; then IS_X55=true; fi
@@ -24,6 +27,11 @@ if [[ "$DEVICE" == *stable ]]; then IS_STABLE=true; fi
 if [ "$UID" -ne 0 ]; then
   echo -e "\033[1;31m❌ 请使用 sudo 执行\033[0m"
   exit 1
+fi
+
+if [[ -n "$RELEASE_VERSION" ]]; then
+  echo -e "\033[1;32m✅ 启用指定版本（备用仓库逻辑）：$RELEASE_VERSION\033[0m"
+  IS_BACKUPREPO=true
 fi
 
 resize_img_gpt() {
@@ -220,6 +228,7 @@ resize_img() {
     resize_img_mbr "$@"
   fi
 }
+
 download_mod_data() {
     local target_dir="$1"
     mkdir -p "$target_dir"
@@ -278,6 +287,11 @@ get_latest_version() {
         VERSION_TYPE="🔵 nightly"
     fi
 
+    if [[ "$IS_BACKUPREPO" == "true" ]]; then
+        REPO="lcdyk0517/r.backup"
+        VERSION_TYPE="📦 备份镜像"
+    fi
+
     echo -e "\033[1;36m🔍 当前拉取源：$VERSION_TYPE ($REPO)\033[0m"
 
     # 环境变量兼容处理
@@ -290,10 +304,17 @@ get_latest_version() {
 
     for i in {1..30}; do
         echo -e "\033[1;34m🔁 获取镜像（尝试 $i/30）...\033[0m"
+        
+        if [[ -n "$RELEASE_VERSION" ]]; then
+            echo -e "\033[1;34m📦 启用指定版本：$RELEASE_VERSION\033[0m"
+            api_url="https://api.github.com/repos/$REPO/releases/tags/$RELEASE_VERSION"
+        else
+            api_url="https://api.github.com/repos/$REPO/releases"
+        fi
 
         response=$(curl -sSL -H "Accept: application/vnd.github+json" \
             ${AUTH_HEADER:+-H "$AUTH_HEADER"} \
-            https://api.github.com/repos/$REPO/releases)
+            "$api_url")
 
         # 检查 API 是否限制
         if echo "$response" | grep -q "API rate limit exceeded"; then
@@ -301,8 +322,18 @@ get_latest_version() {
             return 1
         fi
 
+        if echo "$response" | grep -q "Not Found"; then
+            echo -e "\033[1;31m❌ 找不到指定版本：$RELEASE_VERSION\033[0m"
+            return 1
+        fi
+
+
         # 尝试 jq 解析
-        assets=$(echo "$response" | jq -r '[.[] | select(.assets != null)][0].assets[].browser_download_url' 2>/dev/null)
+        if [[ -n "$RELEASE_VERSION" ]]; then
+            assets=$(echo "$response" | jq -r '.assets[].browser_download_url')
+        else
+            assets=$(echo "$response" | jq -r '[.[] | select(.assets != null)][0].assets[].browser_download_url' 2>/dev/null)
+        fi
         if [[ $? -ne 0 || -z "$assets" ]]; then
             echo -e "\033[1;33m⚠️ 无法解析 GitHub 返回内容（可能是网络问题或格式错误），30 秒后重试...\033[0m"
             sleep 30
