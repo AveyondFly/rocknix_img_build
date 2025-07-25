@@ -101,6 +101,36 @@ download_mod_data() {
 }
 
 get_latest_version() {
+
+    device_pattern="RK3326"
+    file_suffix="b.img.gz"
+
+    if [[ "$IS_BACKUP_REPO_ENABLED" == "true" ]]; then
+        # 👉 启用备用仓库逻辑，仅在此分支改变行为
+        repo="lcdyk0517/r.backup"
+        release_tag="$RELEASE_VERSION"
+
+        echo -e "\033[1;36m📦 启用备用仓库：$repo（版本：$release_tag）\033[0m"
+
+        release=$(curl -s "https://api.github.com/repos/$repo/releases/tags/$release_tag")
+        if echo "$release" | grep -q "Not Found"; then
+            echo -e "\033[1;31m❌ 未找到指定 tag：$release_tag\033[0m"
+            return 1
+        fi
+
+        assets=$(echo "$release" | jq -r '.assets[]?.browser_download_url')
+        download_url=$(echo "$assets" | grep "$device_pattern" | grep "$file_suffix\$")
+
+        if [[ -n "$download_url" ]]; then
+            echo -e "\033[1;32m✅ 找到下载链接：$download_url\033[0m"
+        else
+            echo -e "\033[1;33m⚠️ 未找到符合 $device_pattern*$file_suffix 的文件\033[0m"
+            return 1
+        fi
+
+        return 0
+    fi
+
 	# 获取所有 Release 数据
 	releases=$(curl -s https://api.github.com/repos/ROCKNIX/distribution-nightly/releases)
 	# 提取第一个 Release（即最新的）
@@ -139,12 +169,21 @@ mount_point_storage="storage"
 common_dev="update_files"
 system_root="SYSTEM-root"
 download_data="data_files"
+IS_BACKUP_REPO_ENABLED=false;
+RELEASE_VERSION=""
 
 
 # Check if root
 if [ "$UID" -ne 0 ]; then
     echo "The script should be run with sudo!!!" >&2
     exit 1
+fi
+
+if [[ -n "$filename" && "$filename" != *mini* ]]; then
+  IS_BACKUP_REPO_ENABLED=true
+  RELEASE_VERSION="$filename"
+  echo -e "\033[1;36m📦 启用备用仓库：版本号为 $RELEASE_VERSION\033[0m"
+  filename=""
 fi
 
 if [ -z "$filename" ] || [ "$filename" = "mini" ]; then
