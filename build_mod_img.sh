@@ -5,6 +5,7 @@ mount_point_storage="storage"
 common_dev="update_files"
 system_root="SYSTEM-root"
 download_data="data_files"
+bakcup_repo="lcdyk0517/rocknix.sync"
 
 DEVICE="$1"
 RELEASE_VERSION="$2"
@@ -15,11 +16,13 @@ IS_3326=false
 IS_H700=false
 IS_STABLE=false
 IS_BACKUPREPO=false
+IS_EMMC=false
 
 if [[ "$DEVICE" == *mini* ]]; then IS_MINI=true; fi
 if [[ "$DEVICE" == *x55* ]]; then IS_X55=true; fi
 if [[ "$DEVICE" == 3566* || "$DEVICE" == x55* ]]; then IS_3566=true; fi
-if [[ "$DEVICE" == 3326* ]]; then IS_3326=true; fi
+if [[ "$DEVICE" == *emmc* ]] ; then IS_EMMC=true; fi
+if [[ "$DEVICE" == 3326* || "$DEVICE" == x55* ]]; then IS_3326=true; fi
 if [[ "$DEVICE" == h700* ]]; then IS_H700=true; fi
 if [[ "$DEVICE" == *stable ]]; then IS_STABLE=true; fi
 
@@ -270,6 +273,7 @@ download_mod_data() {
 
 get_latest_version() {
     case "$DEVICE" in
+        *emmc*) PATTERN="RK3326.*b-rk915wifi.img.gz$" ;;
         3326*) PATTERN="RK3326.*b.img.gz$" ;;
         x55*)  PATTERN="RK3566.*x55.img.gz$" ;;
         3566*) PATTERN="RK3566.*Generic.img.gz$" ;;
@@ -287,7 +291,7 @@ get_latest_version() {
     fi
 
     if [[ "$IS_BACKUPREPO" == "true" ]]; then
-        REPO="lcdyk0517/r.backup"
+        REPO="${bakcup_repo}"
         VERSION_TYPE="📦 备份镜像"
     fi
 
@@ -439,9 +443,19 @@ copy_3326() {
 
   cp ${common_dev}/rk915_fw.bin ${system_root}/usr/lib/kernel-overlays/base/lib/firmware/
   cp ${common_dev}/rk915_patch.bin ${system_root}/usr/lib/kernel-overlays/base/lib/firmware/
-  cp -rf ${common_dev}/3326/*  ${mount_point}/
-  cp -rf ${common_dev}/3326_ini/*  ${mount_point}/
-  rm -rf ${mount_point}/extlinux/
+
+    if [[ "$IS_EMMC" != "true" ]]; then
+        echo "🔄 非 eMMC 模式，复制 3326 配置文件..."
+        cp -rf ${common_dev}/3326/*      ${mount_point}/
+        cp -rf ${common_dev}/3326_ini/*  ${mount_point}/
+        rm -rf ${mount_point}/extlinux/
+    else
+        echo "⚠️  eMMC 模式，复制 3326 配置文件..."
+        rm -rf ${mount_point}/*.dtb
+        cp -rf ${common_dev}/3326_ini/  ${mount_point}/
+        rm -rf ${mount_point}/boot*.ini
+        
+    fi
 }
 
 copy_h700() {
@@ -525,11 +539,17 @@ finalize_image() {
     touch ${mount_point}/resize_storage_10G
     touch ${mount_point}/ms_unsupported
 
-    if ! $IS_3566; then
+    if [[ "$IS_3566" == "false" && "$emmc" == "false" ]]; then
         uuid=$(blkid -s UUID -o value ${loop_device}p2)
         for file in ${mount_point}/*.ini; do
             [ -f "$file" ] && sed -i "s/disk=LABEL=STORAGE/disk=UUID=$uuid/" "$file"
         done
+    elif [[ "$IS_EMMC" == "true" ]]; then
+        cp ${mount_point}/extlinux/extlinux.conf ${mount_point}/extlinux/extlinux.conf_bak
+        uuid=`blkid -s UUID -o value ${loop_device}p1`
+        suuid=`blkid -s UUID -o value ${loop_device}p2`
+        sed -i "s|boot=\\\${partition_boot}|boot=UUID=$uuid|g" ${mount_point}/extlinux/extlinux.conf
+        sed -i "s|disk=\\\${partition_storage}|disk=UUID=$suuid|g" ${mount_point}/extlinux/extlinux.conf
     fi
 
     echo -e "\033[1;34m📤 卸载挂载的分区...\033[0m"
@@ -550,6 +570,12 @@ if [[ -z "$DEVICE" ]]; then
   exit 1
 fi
 
+if [[ "$IS_EMMC" == "true" && -z "$2" ]]; then
+    echo -e "\033[1;31m❌ eMMC 模式下，必须提供版本号或本地镜像路径作为参数。\033[0m"
+    echo -e "\033[1;33m👉 示例：./build_mod_img.sh 3326_emmc k36-emmc-wip 或 ./build_mod_img.sh 3326_emmc k36-emmc-wip.img\033[0m"
+    exit 1
+fi
+
 if [[ "$2" != *.img ]]; then
     # 🔍 获取镜像下载链接
     echo -e "\033[1;36m🔍 获取最新版本镜像...\033[0m"
@@ -565,6 +591,8 @@ if [[ "$2" != *.img ]]; then
 else
     filename=$2
 fi
+
+
 
 echo -e "\033[1;33m✨ 开始魔改镜像：$filename\033[0m"
 
