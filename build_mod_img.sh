@@ -539,7 +539,7 @@ finalize_image() {
     touch ${mount_point}/resize_storage_10G
     touch ${mount_point}/ms_unsupported
 
-    if [[ "$IS_3566" == "false" && "$emmc" == "false" ]]; then
+    if [[ "$IS_3566" == "false" && "$IS_EMMC" == "false" ]]; then
         uuid=$(blkid -s UUID -o value ${loop_device}p2)
         for file in ${mount_point}/*.ini; do
             [ -f "$file" ] && sed -i "s/disk=LABEL=STORAGE/disk=UUID=$uuid/" "$file"
