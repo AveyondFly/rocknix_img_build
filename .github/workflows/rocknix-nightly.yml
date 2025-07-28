@@ -15,9 +15,12 @@ on:
         description: "（可选）要构建的架构（多个用逗号分隔，如 3566,x55,h700）"
         required: false
         default: ""
-  # schedule:
-  #   - cron: '0 0 * * *'
-  #   - cron: '0 12 * * *'
+      baiduyun_path:
+        description: '自定义百度云上传路径（结尾不要加斜杠）'
+        required: true
+        default: '/lcdyk有的掌机/魔改包/rocknix自动构建/nightly'
+  schedule:
+    - cron: '0 0 * * *'
   create:
     tags:
       - 'nightly-*'
@@ -137,7 +140,8 @@ jobs:
           if [ -n "${{ github.event.inputs.selected_archs }}" ]; then
             IFS=',' read -ra base <<< "${{ github.event.inputs.selected_archs }}"
           else
-            base=("3566 nightly-20250712" "x55 nightly-20250712" "3326 nightly-20250712" "h700 nightly-20250712")
+            # base=("3566 nightly-20250712" "x55 nightly-20250712" "3326 nightly-20250712" "h700 nightly-20250712" "3326-emmc nightly-20250712")
+            base=("3566" "x55" "3326" "h700" "3326-emmc")
           fi
 
           result="["; for arch in "${base[@]}"; do result+="\"$arch\","; done
@@ -236,7 +240,8 @@ jobs:
       - name: ☁️ 上传非 mini 镜像
         run: |
           ver="${{ needs.version-check.outputs.LATEST_VERSION }}"
-          remote_dir="/lcdyk有的掌机/魔改包/rocknix自动构建/nightly/$ver"
+          base_path="${{ github.event.inputs.baiduyun_path }}"
+          remote_dir="${base_path}/${ver}"
 
           echo "📁 确保远程目录存在：$remote_dir"
           BaiduPCS-Go mkdir "$remote_dir" || echo "⚠️ 创建目录可能已存在，忽略"

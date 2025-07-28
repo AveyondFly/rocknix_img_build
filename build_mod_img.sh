@@ -22,7 +22,7 @@ if [[ "$DEVICE" == *mini* ]]; then IS_MINI=true; fi
 if [[ "$DEVICE" == *x55* ]]; then IS_X55=true; fi
 if [[ "$DEVICE" == 3566* || "$DEVICE" == x55* ]]; then IS_3566=true; fi
 if [[ "$DEVICE" == *emmc* ]] ; then IS_EMMC=true; fi
-if [[ "$DEVICE" == 3326* || "$DEVICE" == x55* ]]; then IS_3326=true; fi
+if [[ "$DEVICE" == 3326* ]]; then IS_3326=true; fi
 if [[ "$DEVICE" == h700* ]]; then IS_H700=true; fi
 if [[ "$DEVICE" == *stable ]]; then IS_STABLE=true; fi
 
@@ -433,6 +433,10 @@ copy_3326() {
   cp ${common_dev}/n64_default.ini ${system_root}/usr/local/share/mupen64plus/default.ini
   cp ${common_dev}/mupen64plus.cfg.mymini ${system_root}/usr/local/share/mupen64plus/
   MODVER=$(basename $(ls -d ${system_root}/usr/lib/kernel-overlays/base/lib/modules/*))
+  if [[ ! -d "${common_dev}/linux-${MODVER}" ]]; then
+    echo -e "\033[1;31m❌ 缺少必要的内核模块目录：${common_dev}/linux-${MODVER}\033[0m"
+    exit 1
+  fi
   cp ${common_dev}/linux-${MODVER}/KERNEL ${mount_point}/
   cp ${common_dev}/linux-${MODVER}/rk915.ko ${system_root}/usr/lib/kernel-overlays/base/lib/modules/${MODVER}/kernel/drivers/net/wireless/
   cp ${common_dev}/linux-${MODVER}/rocknix-singleadc-joypad.ko ${system_root}/usr/lib/kernel-overlays/base/lib/modules/${MODVER}/rocknix-joypad/
@@ -450,7 +454,7 @@ copy_3326() {
         cp -rf ${common_dev}/3326_ini/*  ${mount_point}/
         rm -rf ${mount_point}/extlinux/
     else
-        echo "⚠️  eMMC 模式，复制 3326 配置文件..."
+        echo "🔄 eMMC 模式，复制 3326 配置文件..."
         rm -rf ${mount_point}/*.dtb
         cp -rf ${common_dev}/3326/*  ${mount_point}/
         rm -rf ${mount_point}/boot*.ini
@@ -539,7 +543,7 @@ finalize_image() {
     touch ${mount_point}/resize_storage_10G
     touch ${mount_point}/ms_unsupported
 
-    if [[ "$IS_3566" == "false" && "$IS_EMMC" == "false" ]]; then
+    if [[ "$IS_3326" == "true" && "$IS_EMMC" == "false" ]]; then
         uuid=$(blkid -s UUID -o value ${loop_device}p2)
         for file in ${mount_point}/*.ini; do
             [ -f "$file" ] && sed -i "s/disk=LABEL=STORAGE/disk=UUID=$uuid/" "$file"
@@ -590,7 +594,18 @@ else
     filename=$2
 fi
 
-
+echo -e "\033[1;34m📋 变量状态检查：\033[0m"
+echo -e "  👉 DEVICE         = $DEVICE"
+echo -e "  👉 RELEASE_VERSION= $RELEASE_VERSION"
+echo -e "  👉 filename       = $filename"
+echo -e "  👉 IS_MINI        = $IS_MINI"
+echo -e "  👉 IS_X55         = $IS_X55"
+echo -e "  👉 IS_3566        = $IS_3566"
+echo -e "  👉 IS_3326        = $IS_3326"
+echo -e "  👉 IS_H700        = $IS_H700"
+echo -e "  👉 IS_EMMC        = $IS_EMMC"
+echo -e "  👉 IS_STABLE      = $IS_STABLE"
+echo -e "  👉 IS_BACKUPREPO  = $IS_BACKUPREPO"
 
 echo -e "\033[1;33m✨ 开始魔改镜像：$filename\033[0m"
 

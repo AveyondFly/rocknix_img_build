@@ -15,9 +15,13 @@ on:
         description: "（可选）要构建的架构（多个用逗号分隔，如 3566,x55,h700）"
         required: false
         default: ""
-  # schedule:
-  #   - cron: '0 2 * * *'
-  #   - cron: '0 14 * * *'
+      baiduyun_path:
+        description: '自定义百度云上传路径（结尾不要加斜杠）'
+        required: true
+        default: '/lcdyk有的掌机/魔改包/rocknix自动构建/stable'
+        
+  schedule:
+    - cron: '0 2 * * *'
   create:
     tags:
       - 'stable-*'
@@ -132,13 +136,14 @@ jobs:
             echo "RELEASE_NAME=自动构建成功 - stable - $ver" >> "$GITHUB_OUTPUT"
           fi
 
+      
       - name: 🧮 解析应构建架构（仅非 mini）
         id: matrix
         run: |
           if [ -n "${{ github.event.inputs.selected_archs }}" ]; then
             IFS=',' read -ra base <<< "${{ github.event.inputs.selected_archs }}"
           else
-            base=("3566 20250517" "x55 20250517" "3326 20250517" "h700 20250517")
+            base=("3566_stable" "x55_stable" "3326_stable" "h700_stable" "3326-emmc_stable")
           fi
 
           result="["
@@ -244,7 +249,8 @@ jobs:
       - name: ☁️ 上传非 mini 镜像
         run: |
           ver="${{ needs.version-check.outputs.LATEST_VERSION }}"
-          remote_dir="/lcdyk有的掌机/魔改包/rocknix自动构建/stable/$ver"
+          base_path="${{ github.event.inputs.baiduyun_path }}"
+          remote_dir="${base_path}/${ver}"
 
           echo "📁 确保远程目录存在：$remote_dir"
           BaiduPCS-Go mkdir "$remote_dir" || echo "⚠️ 创建目录可能已存在，忽略"
@@ -261,7 +267,7 @@ jobs:
     name: 保存版本号
     needs: 
       - version-check
-      - upload-to-baidu
+      - build-and-package
     if: needs.version-check.outputs.SKIP_BUILD != 'true'
     runs-on: ubuntu-latest
     steps:
