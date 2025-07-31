@@ -464,6 +464,7 @@ copy_3326() {
 
 copy_h700() {
   echo "📂 [H700] 复制 mod 文件"
+  cp -rf ./sys_root_files/* ${system_root}/
   EXCLUDE_FILES=("mcu_led" "mcu_led_ctrl.sh")
   EXCLUDE_DIRS=("quirks/devices/")
 
