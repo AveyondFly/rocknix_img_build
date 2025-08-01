@@ -1,9 +1,8 @@
 name: 🧹 清理构建记录与百度云构建目录
 
 on:
-  # schedule:
-  #   - cron: "0 4 * * *"
-  #   - cron: "0 16 * * *"
+  schedule:
+    - cron: "0 4 * * *"
   workflow_dispatch:
 
 jobs:
@@ -28,7 +27,7 @@ jobs:
           BaiduPCS-Go login -cookies="${{ secrets.BAIDU_COOKIE }}"
 
           for TYPE in nightly stable; do
-            FOLDER="/lcdyk有的掌机/魔改包/rocknix自动构建/$TYPE"
+            FOLDER="/rocknix/魔改包/自动构建/$TYPE"
             echo "📂 检查目录：$FOLDER"
 
             DIRS=$(BaiduPCS-Go ls "$FOLDER" | grep "^d" | awk '{print $2}')

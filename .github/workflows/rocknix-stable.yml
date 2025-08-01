@@ -18,7 +18,7 @@ on:
       baiduyun_path:
         description: '自定义百度云上传路径（结尾不要加斜杠）'
         required: true
-        default: '/lcdyk有的掌机/魔改包/rocknix自动构建/stable'
+        default: '/rocknix/自动构建/stable'
         
   schedule:
     - cron: '0 2 * * *'
@@ -43,6 +43,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: 📁 设置百度云上传路径
+        id: path-setup
+        run: |
+          if [ -z "${{ github.event.inputs.baiduyun_path }}" ]; then
+            echo "path=/rocknix/自动构建/stable" >> "$GITHUB_OUTPUT"
+          else
+            echo "path=${{ github.event.inputs.baiduyun_path }}" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: 📂 恢复上次构建版本号
         id: restore
@@ -248,9 +256,10 @@ jobs:
 
       - name: ☁️ 上传非 mini 镜像
         run: |
-          ver="${{ needs.version-check.outputs.LATEST_VERSION }}"
+          today=$(date +%Y%m%d)
+          # ver="${{ needs.version-check.outputs.LATEST_VERSION }}"
           base_path="${{ github.event.inputs.baiduyun_path }}"
-          remote_dir="${base_path}/${ver}"
+          remote_dir="${base_path}/${today}"
 
           echo "📁 确保远程目录存在：$remote_dir"
           BaiduPCS-Go mkdir "$remote_dir" || echo "⚠️ 创建目录可能已存在，忽略"
