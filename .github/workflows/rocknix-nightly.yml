@@ -17,7 +17,7 @@ on:
         default: ""
       baiduyun_path:
         description: '自定义百度云上传路径（结尾不要加斜杠）'
-        required: true
+        required: false
         default: '/rocknix/自动构建/nightly'
   schedule:
     - cron: '0 0 * * *'
@@ -36,19 +36,29 @@ jobs:
       RELEASE_NAME:    ${{ steps.detect.outputs.RELEASE_NAME }}
       SKIP_BUILD:      ${{ steps.detect.outputs.SKIP_BUILD }}
       BUILD_ARCHS:     ${{ steps.matrix.outputs.BUILD_ARCHS }}
+      PATH:            ${{ steps.path-setup.outputs.path }}
     steps:
       - name: 🧾 检出仓库
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: 📁 设置百度云上传路径
         id: path-setup
         run: |
-          if [ -z "${{ github.event.inputs.baiduyun_path }}" ]; then
-            echo "path=/rocknix/自动构建/nightly" >> "$GITHUB_OUTPUT"
+          input_path="${{ github.event.inputs.baiduyun_path }}"
+          if [ -z "$input_path" ]; then
+            path="/rocknix/自动构建/nightly"
           else
-            echo "path=${{ github.event.inputs.baiduyun_path }}" >> "$GITHUB_OUTPUT"
+            path="$input_path"
           fi
+
+          # ✅ 打印到日志（方便你调试或确认）
+          echo "📁 设置的百度云上传路径为：$path"
+
+          # ✅ 写入 GITHUB_OUTPUT，供后续步骤使用
+          echo "path=$path" >> "$GITHUB_OUTPUT"
+
 
       - name: 📂 恢复上次构建版本号
         id: restore
@@ -249,7 +259,7 @@ jobs:
         run: |
           today=$(date +%Y%m%d)
           # ver="${{ needs.version-check.outputs.LATEST_VERSION }}"
-          base_path="${{ github.event.inputs.baiduyun_path }}"
+          base_path="${{ needs.version-check.outputs.PATH }}"
           remote_dir="${base_path}/${today}"
 
           echo "📁 确保远程目录存在：$remote_dir"
