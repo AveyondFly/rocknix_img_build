@@ -17,6 +17,7 @@ dtb_map = {
     "K36s": ("rk3326-gameconsole-k36s.dtb", None),
     "R36T": ("rk3326-gameconsole-r36t.dtb", None),    
     "U8": ("rk3326-gameconsole-u8.dtb", None),
+    "HG36/HG3506": ("rk3326-gameconsole-hg36.dtb", None),
     # G80
     "R36S克隆 G80c v1.0": ("rk3326-r36s-clone-a.dtb", None),
     "R36S克隆 G80XF": ("rk3326-r36s-clone-b.dtb", None),
