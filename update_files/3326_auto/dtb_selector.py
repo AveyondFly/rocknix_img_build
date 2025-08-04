@@ -23,11 +23,11 @@ dtb_map = {
     "R36 Ultra": ("rk3326-gameconsole-r36u.dtb", None),
     #稀范科技
     "稀范科技 MyMini": ("rk3326-xifan-mymini.dtb", None),
-    "稀范科技 XF35H": ("rk3326-xifan-r35h.dtb", None),
+    "稀范科技 XF35H": ("rk3326-xifan-xf35h.dtb", None),
     "稀范科技 R36Max": ("rk3326-xifan-r36max.dtb", None),
     "稀范科技 R36Pro": ("rk3326-xifan-r36pro.dtb", None),
-    "稀范科技 XF40H": ("rk3326-xifan-r40h.dtb", None),
-    "稀范科技 XF40V": ("rk3326-xifan-40v.dtb", None),
+    "稀范科技 XF40H": ("rk3326-xifan-xf40h.dtb", None),
+    "稀范科技 XF40V": ("rk3326-xifan-xf40v.dtb", None),
     # 安伯尼克
     "安伯尼克 RG351M": ("rk3326-anbernic-rg351m.dtb", None),
     "安伯尼克 RG351V": ("rk3326-anbernic-rg351v.dtb", None),
