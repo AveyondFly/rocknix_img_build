@@ -463,7 +463,7 @@ copy_3326() {
         rm -rf ${mount_point}/*.py
         rm -rf ${mount_point}/my.ico
         rm -rf ${mount_point}/package.cmd
-        cp -rf ${mount_point}/readme.txt  ${mount_point}/"Mac User Please Readme.txt"
+        mv -f ${mount_point}/readme.txt  ${mount_point}/"Mac User Please Readme.txt"
     else
         echo "🔄 eMMC 模式，复制 3326 配置文件..."
         rm -rf ${mount_point}/*.dtb
