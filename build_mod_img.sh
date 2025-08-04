@@ -449,10 +449,21 @@ copy_3326() {
   cp ${common_dev}/rk915_patch.bin ${system_root}/usr/lib/kernel-overlays/base/lib/firmware/
 
     if [[ "$IS_EMMC" != "true" ]]; then
-        echo "🔄 非 eMMC 模式，复制 3326 配置文件..."
+        # echo "🔄 非 eMMC 模式，复制 3326 配置文件..."
+        # cp -rf ${common_dev}/3326/*      ${mount_point}/
+        # cp -rf ${common_dev}/3326_ini/*  ${mount_point}/
+        # rm -rf ${mount_point}/extlinux/
+        echo "🔄 非 eMMC 模式，复制 3326 自动配置文件..."
         cp -rf ${common_dev}/3326/*      ${mount_point}/
         cp -rf ${common_dev}/3326_ini/*  ${mount_point}/
+        cp -rf ${common_dev}/3326_auto/*  ${mount_point}/
         rm -rf ${mount_point}/extlinux/
+        rm -rf ${mount_point}/boot.scr
+        rm -rf ${mount_point}/*.ini
+        rm -rf ${mount_point}/*.py
+        rm -rf ${mount_point}/my.ico
+        rm -rf ${mount_point}/package.cmd
+        cp -rf ${mount_point}/readme.txt  ${mount_point}/"Mac User Please Readme.txt"
     else
         echo "🔄 eMMC 模式，复制 3326 配置文件..."
         rm -rf ${mount_point}/*.dtb
@@ -505,7 +516,7 @@ copy_h700() {
   mkdir -p ${mount_point_storage}/data/
   cp ${common_dev}/update.sh  ${mount_point_storage}/data/
   cp ${common_dev}/functions ${mount_point_storage}/data/
-  cp ${common_dev}/H700/* ${mount_point}/
+  cp ${common_dev}/H700/dtb_selector.exe ${mount_point}/
 
 }
 
@@ -546,7 +557,7 @@ finalize_image() {
 
     if [[ "$IS_3326" == "true" && "$IS_EMMC" == "false" ]]; then
         uuid=$(blkid -s UUID -o value ${loop_device}p2)
-        for file in ${mount_point}/*.ini; do
+        for file in ${mount_point}/config/*.ini; do
             [ -f "$file" ] && sed -i "s/disk=LABEL=STORAGE/disk=UUID=$uuid/" "$file"
         done
     elif [[ "$IS_EMMC" == "true" ]]; then
