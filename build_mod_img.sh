@@ -540,8 +540,8 @@ modify_system() {
     sed -i '/mod_by_kk/!s/official/official_mod_by_kk/g' ${system_root}/etc/os-release
     sed -i '/^[[:space:]]*$/d' "${system_root}/etc/issue"
     {
-      echo "... M o d: $(date '+%a %b %e %H:%M:%S CST %Y')"
-      echo -e "... Mod by \e[1;33mlcdyk\e[0;m based on kk"
+        echo "... M o d: $(date '+%a %b %e %H:%M:%S CST %Y')"
+        echo -e "... Mod by \e[1;32mkk\e[0m & \e[1;33mlcdyk\e[0m based on \e[1;34mG.R.H\e[0m"
     } >> "${system_root}/etc/issue"
 }
 
