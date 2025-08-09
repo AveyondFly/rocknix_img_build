@@ -27,7 +27,7 @@ jobs:
           BaiduPCS-Go login -cookies="${{ secrets.BAIDU_COOKIE }}"
 
           for TYPE in nightly stable; do
-            FOLDER="/rocknix/魔改包/自动构建/$TYPE"
+            FOLDER="/rocknix/自动构建/$TYPE"
             echo "📂 检查目录：$FOLDER"
 
             DIRS=$(BaiduPCS-Go ls "$FOLDER" | grep "^d" | awk '{print $2}')
